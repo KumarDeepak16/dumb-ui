@@ -1016,7 +1016,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     slug: "shader-background",
     title: "Shader Background",
-    description: "A WebGL2 background painted with the active style's colors. Five presets: Newsprint, Velvet, Altitude, Cyanotype and Lumen.",
+    description: "An interactive WebGL2 background painted with the active style's colors. Five presets: Press, Satin, Relief, Draft and Signal. Follows the pointer, ripples on click.",
     group: "Originals",
     dependencies: [],
     registryDependencies: [],
@@ -1032,7 +1032,8 @@ export const componentDocs: ComponentDoc[] = [
       {
         component: "ShaderBackground",
         rows: [
-          { prop: "preset", type: '"newsprint" | "velvet" | "altitude" | "cyanotype" | "lumen"', description: "Pattern. Defaults to the one matching the nearest data-style.", extra: true },
+          { prop: "preset", type: '"press" | "satin" | "relief" | "draft" | "signal"', description: "Pattern. Defaults to the one matching the nearest data-style.", extra: true },
+          { prop: "interactive", type: "boolean", default: "true", description: "Follow the pointer over the parent element; click for a ripple.", extra: true },
           { prop: "speed", type: "number", default: "1", description: "Animation speed. 0 renders a still frame.", extra: true },
           { prop: "intensity", type: "number", default: "1", description: "Pattern strength, 0 to 1.", extra: true },
         ],

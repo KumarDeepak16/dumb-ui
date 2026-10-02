@@ -30,7 +30,7 @@ export default function ShaderBackgroundDemo() {
           <span className="max-w-[40ch] text-sm text-muted-foreground">
             {meta
               ? meta.description
-              : "With no preset, each style paints its own: Newsprint, Velvet, Altitude, Cyanotype or Lumen."}
+              : "Each style paints its own: Press, Satin, Relief, Draft or Signal. Move the pointer, click for a ripple."}
           </span>
         </div>
       </div>
