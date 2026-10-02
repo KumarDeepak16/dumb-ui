@@ -176,14 +176,22 @@ function ShaderBackground({
   ...props
 }: ShaderBackgroundProps) {
   const rootRef = React.useRef<HTMLDivElement>(null)
-  const canvasRef = React.useRef<HTMLCanvasElement>(null)
 
   React.useEffect(() => {
     const root = rootRef.current
-    const canvas = canvasRef.current
-    if (!root || !canvas) return
-    const gl = canvas.getContext("webgl2", { antialias: false, alpha: false, powerPreference: "low-power" })
+    if (!root) return
+    // A fresh canvas per mount: a context released in cleanup can never be
+    // reused, and React may remount the same element (Strict Mode, fast refresh).
+    const canvas = document.createElement("canvas")
+    canvas.className = "block size-full"
+    const gl = canvas.getContext("webgl2", {
+      antialias: false,
+      alpha: false,
+      powerPreference: "low-power",
+      preserveDrawingBuffer: false,
+    })
     if (!gl) return
+    root.appendChild(canvas)
 
     const compile = (type: number, src: string) => {
       const shader = gl.createShader(type)!
@@ -199,6 +207,7 @@ function ShaderBackground({
       if (process.env.NODE_ENV !== "production") {
         console.error("ShaderBackground:", gl.getProgramInfoLog(program))
       }
+      canvas.remove()
       return
     }
     gl.useProgram(program)
@@ -299,6 +308,14 @@ function ShaderBackground({
     const onVisibility = () => start()
     document.addEventListener("visibilitychange", onVisibility)
     reduce.addEventListener("change", start)
+    // If the GPU drops the context (too many canvases, driver reset), fall
+    // back to the plain background instead of a blank or "sad" canvas.
+    const onLost = (event: Event) => {
+      event.preventDefault()
+      cancelAnimationFrame(frame)
+      canvas.style.visibility = "hidden"
+    }
+    canvas.addEventListener("webglcontextlost", onLost)
 
     return () => {
       cancelAnimationFrame(frame)
@@ -309,7 +326,11 @@ function ShaderBackground({
       reduce.removeEventListener("change", start)
       host.removeEventListener("pointermove", onPointer)
       host.removeEventListener("pointerleave", onLeave)
+      canvas.removeEventListener("webglcontextlost", onLost)
+      gl.deleteBuffer(buffer)
+      gl.deleteProgram(program)
       gl.getExtension("WEBGL_lose_context")?.loseContext()
+      canvas.remove()
     }
   }, [preset, speed, intensity])
 
@@ -320,9 +341,7 @@ function ShaderBackground({
       className={cn("pointer-events-none absolute inset-0 overflow-hidden bg-background", className)}
       {...props}
       data-slot="shader-background"
-    >
-      <canvas ref={canvasRef} className="block size-full" />
-    </div>
+    />
   )
 }
 
