@@ -4,7 +4,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const PRESETS = ["press", "satin", "relief", "draft", "signal"] as const
+const PRESETS = ["press", "satin", "relief", "signal"] as const
 type ShaderPreset = (typeof PRESETS)[number]
 
 /** Each style's natural background. */
@@ -12,7 +12,7 @@ const STYLE_PRESET: Record<string, ShaderPreset> = {
   raw: "press",
   silk: "satin",
   volume: "relief",
-  vector: "draft",
+  vector: "relief",
   halo: "signal",
 }
 
@@ -21,7 +21,6 @@ const SHADER_PRESETS: Record<ShaderPreset, { name: string; description: string }
   press: { name: "Press", description: "One-bit ordered dither. Ink blooms under the cursor; clicks send rings." },
   satin: { name: "Satin", description: "Flowing fabric folds with a soft sheen. The cursor bends the cloth." },
   relief: { name: "Relief", description: "A wireframe landscape rolling toward you. The cursor raises a hill." },
-  draft: { name: "Draft", description: "A drafting compass that tracks the cursor across a measured grid." },
   signal: { name: "Signal", description: "An LED dot field with a cursor spotlight. Clicks pulse outward." },
 }
 
@@ -33,7 +32,6 @@ const PRESET_SCALE: Record<ShaderPreset, number> = {
   press: 1,
   satin: 0.75,
   relief: 1,
-  draft: 1,
   signal: 1,
 }
 
@@ -146,32 +144,6 @@ void main() {
       float glow = exp(depth * 9.0);
       col = mix(u_bg, mix(u_bg, u_primary, 0.4), glow * 0.45 * I);
     }
-  } else if (u_preset == 3) {
-    // DRAFT: a compass that tracks the cursor across a measured grid
-    float minor = max(aa(abs(fract(px.x / 16.0 + 0.5) - 0.5) * 16.0, 0.5), aa(abs(fract(px.y / 16.0 + 0.5) - 0.5) * 16.0, 0.5));
-    float major = max(aa(abs(fract(px.x / 80.0 + 0.5) - 0.5) * 80.0, 0.5), aa(abs(fract(px.y / 80.0 + 0.5) - 0.5) * 80.0, 0.5));
-    float ink = max(minor * 0.06, major * 0.14);
-    vec2 auto_ = u_res * vec2(0.68 + 0.08 * sin(t * 0.21), 0.52 + 0.06 * cos(t * 0.17));
-    vec2 c = mix(auto_, u_mouse, u_hover);
-    float R = min(u_res.x, u_res.y) * (0.26 + 0.03 * u_energy);
-    vec2 d = px - c;
-    float r = length(d);
-    float ang = atan(d.y, d.x);
-    ink = max(ink, aa(abs(r - R), 0.6) * 0.75);
-    float dash = step(0.5, fract(ang * 9.549 - t * 0.35));
-    ink = max(ink, aa(abs(r - R * 0.62), 0.5) * 0.45 * dash);
-    ink = max(ink, aa(abs(r - R * 1.35), 0.5) * 0.22);
-    ink = max(ink, aa(abs(d.x), 0.5) * 0.3);
-    ink = max(ink, aa(abs(d.y), 0.5) * 0.3);
-    float tick = step(0.5, fract(d.x / 8.0)) * step(abs(d.y), 6.0) * step(abs(d.x), R * 1.35);
-    ink = max(ink, tick * 0.35);
-    float tickY = step(0.5, fract(d.y / 8.0)) * step(abs(d.x), 6.0) * step(abs(d.y), R * 1.35);
-    ink = max(ink, tickY * 0.35);
-    float sweep = mod(t * 0.6, 6.2831853) - 3.14159265;
-    float arc = aa(abs(r - R), 1.6) * step(abs(ang - sweep), 0.35);
-    ink = max(ink, arc);
-    ink = max(ink, aa(r, 2.5) * 0.9);
-    col = mix(u_bg, u_fg, clamp(ink * I, 0.0, 1.0));
   } else {
     // SIGNAL: an LED dot field with a cursor spotlight
     float pitch = 14.0;
@@ -212,7 +184,7 @@ function cssToRgb(color: string, ctx: CanvasRenderingContext2D): [number, number
 }
 
 type ShaderBackgroundProps = React.ComponentProps<"div"> & {
-  /** Defaults to the preset that matches the nearest data-style (Raw: press, Silk: satin, Volume: relief, Vector: draft, Halo: signal). */
+  /** Defaults to the preset that matches the nearest data-style (Raw: press, Silk: satin, Volume and Vector: relief, Halo: signal). */
   preset?: ShaderPreset
   /** Animation speed multiplier. 0 renders a still frame. */
   speed?: number
