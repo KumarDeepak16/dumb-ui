@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import Link from "next/link"
 import { ArrowLeftIcon } from "@phosphor-icons/react/ssr"
 
@@ -7,9 +8,18 @@ import { siteConfig } from "@/docs/site"
 import { CopyButton } from "@/components/site/copy-button"
 import { StyleSwitcher } from "@/components/site/style-switcher"
 
+const noop = () => () => {}
+
 /** Floating control bar on template pages: style switch, install, back to docs. */
 function TemplateBar({ name }: { name: string }) {
+  // Hidden when the page is embedded as a preview on /docs/templates.
+  const embedded = React.useSyncExternalStore(
+    noop,
+    () => window.self !== window.top,
+    () => true
+  )
   const command = `npx shadcn@latest add ${siteConfig.namespace}/template-${name}`
+  if (embedded) return null
   return (
     <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4" data-template-bar>
       <div className="flex max-w-full items-center gap-2 overflow-x-auto rounded-(--du-radius-overlay) border-(length:--du-border-overlay) border-border bg-popover/95 p-1.5 text-popover-foreground shadow-(--du-shadow-overlay) backdrop-blur-md">

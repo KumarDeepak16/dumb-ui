@@ -514,7 +514,7 @@ function Footer() {
 
 export default function LandingTemplate() {
   return (
-    <div className="min-h-dvh overflow-x-hidden bg-background text-foreground">
+    <div className="min-h-dvh overflow-x-clip bg-background text-foreground">
       <Header />
       <main>
         <Hero />

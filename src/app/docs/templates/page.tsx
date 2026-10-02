@@ -25,7 +25,7 @@ const templates = [
     name: "portfolio",
     title: "Portfolio",
     description:
-      "Deepak Kumar's portfolio: a floating pill nav, an illustrated portrait ringed by prop chips, a pinned work list with original cover art, a control that re-skins the page with Dumb UI itself, writing and a contact form.",
+      "Deepak Kumar's portfolio: a floating pill nav, a tilting portrait ringed by prop chips, a pinned work list with a live counter, cursor-following previews, a control that re-skins the page with Dumb UI itself, writing and a contact form.",
   },
 ]
 
