@@ -1,0 +1,2172 @@
+/*
+ * Dumb UI
+ * One component system, three visual languages.
+ *
+ * A style is a token set. Components never branch on style: they read
+ * tokens through Tailwind utilities (colors, radius, sizes) and through the
+ * material layer at the bottom of this file (borders, shadows, type, motion,
+ * focus). Set `data-style` on <html> (or on any subtree) to pick a style:
+ *
+ *   <html data-style="raw" | "vector" | "volume" class="dark?">
+ *
+ * Because styles are plain custom properties, scopes nest: a subtree with a
+ * different `data-style` renders in that style, including portalled content
+ * when it is mounted inside the scope (see <StyleScope>).
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-selection: var(--selection);
+  --color-selection-foreground: var(--selection-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-sunken: var(--sunken);
+  --color-overlay: var(--overlay);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--du-font-sans);
+  --font-display: var(--du-font-display);
+  --font-mono: var(--du-font-mono);
+
+  /* shadcn compatibility: third-party components using rounded-md etc. */
+  --radius-sm: max(0px, calc(var(--radius) - 4px));
+  --radius-md: max(0px, calc(var(--radius) - 2px));
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ARCHIVED: Halo (premium luminous). Kept for reference, not shipped.      */
+/* To restore: remove the comment markers around the blocks below and add  */
+/* "halo" back to DUMB_STYLES, STYLE_IDS and STYLE_META.                    */
+/* ------------------------------------------------------------------------ */
+/*
+[data-style="halo"] {
+  --background: oklch(0.984 0.002 250);
+  --foreground: oklch(0.18 0.012 262);
+  --card: oklch(0.996 0.001 250);
+  --card-foreground: oklch(0.18 0.012 262);
+  --popover: oklch(0.996 0.001 250);
+  --popover-foreground: oklch(0.18 0.012 262);
+  --primary: oklch(0.2 0.014 262);
+  --primary-foreground: oklch(0.985 0.002 250);
+  --secondary: oklch(0.955 0.004 255);
+  --secondary-foreground: oklch(0.18 0.012 262);
+  --muted: oklch(0.958 0.003 255);
+  --muted-foreground: oklch(0.49 0.014 262);
+  --accent: oklch(0.948 0.005 255);
+  --accent-foreground: oklch(0.18 0.012 262);
+  --selection: oklch(0.935 0.045 170);
+  --selection-foreground: oklch(0.3 0.07 172);
+  --destructive: oklch(0.55 0.21 22);
+  --destructive-foreground: oklch(0.99 0.004 22);
+  --success: oklch(0.52 0.13 162);
+  --success-foreground: oklch(0.99 0.004 162);
+  --warning: oklch(0.81 0.15 80);
+  --warning-foreground: oklch(0.27 0.05 62);
+  --highlight: oklch(0.66 0.15 170);
+  --highlight-foreground: oklch(0.18 0.03 175);
+  --sunken: oklch(0.962 0.003 255);
+  --overlay: oklch(0.18 0.012 262 / 0.24);
+  --border: oklch(0.912 0.004 255);
+  --input: oklch(0.882 0.006 255);
+  --ring: oklch(0.64 0.15 170);
+
+  --du-shade: oklch(0.2 0.02 262);
+  --du-glow: oklch(0.7 0.16 168);
+
+  --du-font-sans: var(--font-geist, "Geist"), ui-sans-serif, system-ui, sans-serif;
+  --du-font-display: var(--font-geist, "Geist"), ui-sans-serif, system-ui, sans-serif;
+  --du-font-mono: var(--font-geist-mono, "Geist Mono"), ui-monospace, monospace;
+  --du-font-control: var(--du-font-sans);
+  --du-display-weight: 600;
+  --du-display-tracking: -0.035em;
+  --du-display-stretch: 100%;
+  --du-display-case: none;
+  --du-control-weight: 500;
+  --du-control-tracking: -0.01em;
+  --du-control-case: none;
+  --du-text-control: 0.875rem;
+  --du-font-label: var(--du-font-sans);
+  --du-label-weight: 500;
+  --du-label-tracking: -0.005em;
+  --du-label-case: none;
+  --du-text-label: 0.8125rem;
+
+  --radius: 0.75rem;
+  --du-radius-control: 0.625rem;
+  --du-radius-field: 0.625rem;
+  --du-radius-surface: 1rem;
+  --du-radius-overlay: 0.875rem;
+  --du-radius-item: 0.5rem;
+  --du-radius-badge: 999px;
+  --du-radius-check: 0.375rem;
+  --du-radius-avatar: 999px;
+  --du-radius-tooltip: 0.5rem;
+  --du-h-sm: 2rem;
+  --du-h-md: 2.25rem;
+  --du-h-lg: 2.75rem;
+  --du-pad-control: 0.9375rem;
+  --du-pad-surface: 1.375rem;
+  --du-gap-surface: 1.125rem;
+  --du-check-size: 1.125rem;
+  --du-avatar: 2.25rem;
+  --du-badge-h: 1.375rem;
+  --du-badge-px: 0.5625rem;
+
+  --du-border-control: 1px;
+  --du-border-field: 1px;
+  --du-border-surface: 1px;
+  --du-border-overlay: 1px;
+  --du-border-check: 1px;
+  --du-rule: 1px;
+  --du-btn-border: transparent;
+
+  --du-sheen: linear-gradient(to bottom, oklch(1 0 0 / 0.7), oklch(1 0 0 / 0));
+  --du-sheen-primary: linear-gradient(to bottom, oklch(1 0 0 / 0.14), oklch(1 0 0 / 0) 60%);
+  --du-shadow-control: 0 0 0 1px oklch(0.2 0.02 262 / 0.07), 0 1px 2px oklch(0.2 0.02 262 / 0.06);
+  --du-shadow-control-hover: 0 0 0 1px oklch(0.2 0.02 262 / 0.09), 0 1px 2px oklch(0.2 0.02 262 / 0.06), 0 0 0 4px oklch(from var(--du-glow) l c h / 0.16);
+  --du-shadow-control-active: 0 0 0 1px oklch(0.2 0.02 262 / 0.1);
+  --du-shadow-primary: inset 0 1px 0 oklch(1 0 0 / 0.16), 0 0 0 1px oklch(0.2 0.014 262), 0 1px 2px oklch(0.2 0.02 262 / 0.2), 0 6px 14px -6px oklch(0.2 0.02 262 / 0.35);
+  --du-shadow-primary-hover: inset 0 1px 0 oklch(1 0 0 / 0.16), 0 0 0 1px oklch(0.2 0.014 262), 0 1px 2px oklch(0.2 0.02 262 / 0.2), 0 0 0 4px oklch(from var(--du-glow) l c h / 0.24), 0 8px 24px -8px oklch(from var(--du-glow) l c h / 0.55);
+  --du-shadow-destructive: inset 0 1px 0 oklch(1 0 0 / 0.16), 0 0 0 1px oklch(from var(--destructive) calc(l - 0.06) c h), 0 6px 14px -6px oklch(from var(--destructive) l c h / 0.45);
+  --du-shadow-destructive-hover: inset 0 1px 0 oklch(1 0 0 / 0.16), 0 0 0 1px oklch(from var(--destructive) calc(l - 0.06) c h), 0 0 0 4px oklch(from var(--destructive) l c h / 0.18);
+  --du-shadow-field: 0 1px 2px oklch(0.2 0.02 262 / 0.04);
+  --du-shadow-field-focus: 0 0 0 4px oklch(from var(--du-glow) l c h / 0.2), 0 0 18px -4px oklch(from var(--du-glow) l c h / 0.45);
+  --du-shadow-field-invalid: 0 0 0 4px oklch(from var(--destructive) l c h / 0.16);
+  --du-field-outline: none;
+  --du-field-focus-border: var(--ring);
+  --du-field-bg: var(--card);
+  --du-shadow-surface: 0 0 0 1px oklch(0.2 0.02 262 / 0.035), 0 1px 2px oklch(0.2 0.02 262 / 0.04), 0 14px 36px -18px oklch(0.2 0.03 262 / 0.2);
+  --du-shadow-surface-hover: 0 0 0 1px oklch(from var(--du-glow) l c h / 0.45), 0 0 0 5px oklch(from var(--du-glow) l c h / 0.1), 0 18px 44px -18px oklch(from var(--du-glow) l c h / 0.4);
+  --du-shadow-surface-active: var(--du-shadow-surface);
+  --du-surface-hover-transform: translateY(-1px);
+  --du-surface-active-transform: scale(0.992);
+  --du-shadow-overlay: 0 0 0 1px oklch(0.2 0.02 262 / 0.06), 0 12px 28px -8px oklch(0.2 0.02 262 / 0.16), 0 32px 64px -24px oklch(0.2 0.02 262 / 0.24);
+  --du-shadow-check: 0 1px 1px oklch(0.2 0.02 262 / 0.05);
+  --du-shadow-check-on: 0 0 12px -2px oklch(from var(--du-glow) l c h / 0.7);
+  --du-shadow-thumb: 0 0 0 1px oklch(0.2 0.02 262 / 0.06), 0 2px 6px oklch(0.2 0.02 262 / 0.2);
+  --du-shadow-well: inset 0 0 0 1px oklch(0.2 0.02 262 / 0.04);
+  --du-backdrop-filter: blur(6px);
+  --du-popover-bg: oklch(from var(--popover) l c h / 0.9);
+  --du-popover-filter: blur(18px) saturate(1.4);
+
+  --du-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --du-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --du-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --du-dur-1: 160ms;
+  --du-dur-2: 260ms;
+  --du-dur-3: 420ms;
+  --du-hover-x: 0px;
+  --du-hover-y: 0px;
+  --du-active-x: 0px;
+  --du-active-y: 0px;
+  --du-active-scale: 0.98;
+  --du-overlay-in: du-materialize;
+  --du-overlay-out: du-dematerialize;
+  --du-dialog-in: du-materialize-lg;
+  --du-dialog-out: du-dematerialize;
+  --du-check-anim: du-pop;
+  --du-skeleton-anim: du-shimmer 1.8s var(--du-ease) infinite;
+  --du-skeleton-image: linear-gradient(90deg, oklch(1 0 0 / 0) 0%, oklch(from var(--du-glow) l c h / 0.14) 50%, oklch(1 0 0 / 0) 100%);
+  --du-skeleton-size: 200% 100%;
+  --du-spinner-timing: linear;
+
+  --du-focus-width: 3px;
+  --du-focus-offset: 1px;
+  --du-focus-color: oklch(from var(--ring) l c h / 0.55);
+
+  --du-tabs-bg: var(--secondary);
+  --du-tabs-pad: 3px;
+  --du-tabs-gap: 2px;
+  --du-tabs-radius: 0.6875rem;
+  --du-tabs-border: 0px;
+  --du-tabs-shadow: inset 0 0 0 1px oklch(0.2 0.02 262 / 0.04);
+  --du-tabs-h: 1.875rem;
+  --du-tabs-trigger-radius: 0.5rem;
+  --du-tabs-trigger-bg: transparent;
+  --du-tabs-trigger-shadow: none;
+  --du-tabs-active-bg: var(--card);
+  --du-tabs-active-fg: var(--foreground);
+  --du-tabs-active-shadow: 0 0 0 1px oklch(0.2 0.02 262 / 0.06), 0 1px 3px oklch(0.2 0.02 262 / 0.12);
+  --du-tabs-active-transform: none;
+  --du-tabs-divider: 0px;
+
+  --du-switch-w: 2.625rem;
+  --du-switch-h: 1.5rem;
+  --du-switch-pad: 3px;
+  --du-switch-border: 0px;
+  --du-switch-radius: 999px;
+  --du-switch-off: oklch(0.885 0.006 255);
+  --du-switch-on: var(--du-glow);
+  --du-switch-on-shadow: 0 0 14px -3px oklch(from var(--du-glow) l c h / 0.8);
+  --du-switch-thumb: oklch(0.998 0 0);
+  --du-switch-thumb-on: oklch(0.998 0 0);
+  --du-switch-thumb-radius: 999px;
+  --du-switch-thumb-shadow: var(--du-shadow-thumb);
+  --du-switch-shadow: inset 0 0 0 1px oklch(0.2 0.02 262 / 0.05);
+  --du-switch-stretch: 1.15;
+
+  --du-track-h: 0.25rem;
+  --du-track-radius: 999px;
+  --du-track-bg: oklch(0.9 0.005 255);
+  --du-track-border: 0px;
+  --du-range-bg: var(--du-glow);
+  --du-range-image: none;
+  --du-thumb-size: 1.125rem;
+  --du-thumb-radius: 999px;
+  --du-thumb-bg: oklch(0.998 0 0);
+  --du-thumb-border: 0px;
+  --du-progress-h: 0.375rem;
+
+  --du-card-rule: 0px;
+  --du-accordion-bg: transparent;
+  --du-accordion-radius: 0px;
+  --du-accordion-shadow: none;
+  --du-accordion-px: 0px;
+  --du-accordion-gap: 0px;
+  --du-accordion-item-bg: transparent;
+  --du-accordion-item-radius: 0px;
+  --du-accordion-item-shadow: none;
+  --du-accordion-item-rule: 1px;
+  --du-accordion-last-rule: var(--border);
+
+  --du-table-head-bg: transparent;
+  --du-table-head-bg-solid: var(--background);
+  --du-table-head-fg: var(--muted-foreground);
+  --du-table-head-font: var(--du-font-sans);
+  --du-table-head-case: none;
+  --du-table-head-tracking: 0em;
+  --du-table-head-weight: 500;
+  --du-table-head-size: 0.8125rem;
+
+  --du-tooltip-bg: oklch(0.2 0.014 262);
+  --du-tooltip-fg: oklch(0.97 0.003 250);
+  --du-tooltip-font: var(--du-font-sans);
+  --du-tooltip-case: none;
+  --du-tooltip-tracking: 0em;
+
+  --du-kbd-shadow: 0 0 0 1px oklch(0.2 0.02 262 / 0.05), 0 1px 0 oklch(0.2 0.02 262 / 0.1);
+  --du-drawer-handle: oklch(0.86 0.006 255);
+  --du-drawer-handle-w: 2.5rem;
+  --du-drawer-handle-h: 0.3125rem;
+  --du-drawer-handle-radius: 999px;
+}
+
+[data-style="halo"]:is(.dark, .dark *) {
+  --background: oklch(0.145 0.007 262);
+  --foreground: oklch(0.962 0.003 250);
+  --card: oklch(0.178 0.008 262);
+  --card-foreground: oklch(0.962 0.003 250);
+  --popover: oklch(0.196 0.009 262);
+  --popover-foreground: oklch(0.962 0.003 250);
+  --primary: oklch(0.962 0.003 250);
+  --primary-foreground: oklch(0.16 0.008 262);
+  --secondary: oklch(0.235 0.009 262);
+  --secondary-foreground: oklch(0.962 0.003 250);
+  --muted: oklch(0.21 0.008 262);
+  --muted-foreground: oklch(0.7 0.012 255);
+  --accent: oklch(0.245 0.01 262);
+  --accent-foreground: oklch(0.962 0.003 250);
+  --selection: oklch(0.3 0.06 170);
+  --selection-foreground: oklch(0.93 0.08 166);
+  --destructive: oklch(0.66 0.2 22);
+  --destructive-foreground: oklch(0.16 0.03 22);
+  --success: oklch(0.76 0.15 162);
+  --success-foreground: oklch(0.17 0.04 162);
+  --warning: oklch(0.83 0.14 80);
+  --warning-foreground: oklch(0.22 0.04 62);
+  --highlight: oklch(0.84 0.15 168);
+  --highlight-foreground: oklch(0.16 0.04 172);
+  --sunken: oklch(0.12 0.006 262);
+  --overlay: oklch(0.05 0.004 262 / 0.62);
+  --border: oklch(0.255 0.01 262);
+  --input: oklch(0.3 0.012 262);
+  --ring: oklch(0.82 0.15 168);
+
+  --du-glow: oklch(0.82 0.16 166);
+
+  --du-sheen: linear-gradient(to bottom, oklch(1 0 0 / 0.06), oklch(1 0 0 / 0));
+  --du-sheen-primary: linear-gradient(to bottom, oklch(1 0 0 / 0), oklch(0 0 0 / 0.06));
+  --du-shadow-control: inset 0 1px 0 oklch(1 0 0 / 0.06), 0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 2px oklch(0 0 0 / 0.4);
+  --du-shadow-control-hover: inset 0 1px 0 oklch(1 0 0 / 0.08), 0 0 0 1px oklch(1 0 0 / 0.12), 0 0 0 4px oklch(from var(--du-glow) l c h / 0.14);
+  --du-shadow-control-active: inset 0 1px 0 oklch(1 0 0 / 0.04), 0 0 0 1px oklch(1 0 0 / 0.1);
+  --du-shadow-primary: inset 0 1px 0 oklch(1 0 0 / 0.8), 0 0 0 1px oklch(1 0 0 / 0.2), 0 6px 18px -6px oklch(1 0 0 / 0.18);
+  --du-shadow-primary-hover: inset 0 1px 0 oklch(1 0 0 / 0.8), 0 0 0 1px oklch(1 0 0 / 0.2), 0 0 0 4px oklch(from var(--du-glow) l c h / 0.22), 0 8px 28px -6px oklch(from var(--du-glow) l c h / 0.5);
+  --du-shadow-field: inset 0 1px 0 oklch(1 0 0 / 0.03);
+  --du-field-bg: oklch(0.165 0.008 262);
+  --du-shadow-surface: inset 0 1px 0 oklch(1 0 0 / 0.05), 0 0 0 1px oklch(1 0 0 / 0.04), 0 18px 40px -20px oklch(0 0 0 / 0.7);
+  --du-shadow-surface-hover: inset 0 1px 0 oklch(1 0 0 / 0.07), 0 0 0 1px oklch(from var(--du-glow) l c h / 0.4), 0 0 0 5px oklch(from var(--du-glow) l c h / 0.07), 0 20px 50px -18px oklch(from var(--du-glow) l c h / 0.28);
+  --du-shadow-overlay: inset 0 1px 0 oklch(1 0 0 / 0.07), 0 0 0 1px oklch(1 0 0 / 0.08), 0 16px 36px -8px oklch(0 0 0 / 0.6), 0 36px 80px -24px oklch(0 0 0 / 0.7);
+  --du-shadow-check: inset 0 1px 0 oklch(1 0 0 / 0.04);
+  --du-shadow-thumb: 0 0 0 1px oklch(0 0 0 / 0.2), 0 2px 6px oklch(0 0 0 / 0.5);
+  --du-popover-bg: oklch(from var(--popover) l c h / 0.86);
+  --du-skeleton-image: linear-gradient(90deg, oklch(1 0 0 / 0) 0%, oklch(from var(--du-glow) l c h / 0.1) 50%, oklch(1 0 0 / 0) 100%);
+  --du-tabs-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.04);
+  --du-tabs-active-bg: oklch(0.3 0.011 262);
+  --du-tabs-active-shadow: inset 0 1px 0 oklch(1 0 0 / 0.08), 0 1px 3px oklch(0 0 0 / 0.5);
+  --du-switch-off: oklch(0.3 0.012 262);
+  --du-switch-thumb-on: oklch(0.14 0.02 170);
+  --du-track-bg: oklch(0.3 0.012 262);
+  --du-thumb-bg: oklch(0.962 0.003 250);
+  --du-tooltip-bg: oklch(0.962 0.003 250);
+  --du-tooltip-fg: oklch(0.16 0.008 262);
+  --du-kbd-shadow: inset 0 1px 0 oklch(1 0 0 / 0.06), 0 0 0 1px oklch(1 0 0 / 0.06);
+  --du-drawer-handle: oklch(0.34 0.012 262);
+}
+*/
+
+/* ------------------------------------------------------------------------ */
+/* Raw                                                                      */
+/* Newsprint and ink. Expanded grotesk, mono labels, 2px rules, hard        */
+/* offset shadows that collapse when pressed. Vermillion is the one spot    */
+/* color: it marks focus and the primary action's shadow.                   */
+/* ------------------------------------------------------------------------ */
+
+:where(:root),
+[data-style="raw"] {
+  --background: oklch(0.958 0.005 95);
+  --foreground: oklch(0.17 0.01 70);
+  --card: oklch(0.985 0.003 95);
+  --card-foreground: oklch(0.17 0.01 70);
+  --popover: oklch(0.985 0.003 95);
+  --popover-foreground: oklch(0.17 0.01 70);
+  --primary: oklch(0.17 0.01 70);
+  --primary-foreground: oklch(0.975 0.004 95);
+  --secondary: oklch(0.905 0.006 95);
+  --secondary-foreground: oklch(0.17 0.01 70);
+  --muted: oklch(0.915 0.005 95);
+  --muted-foreground: oklch(0.41 0.012 70);
+  --accent: oklch(0.17 0.01 70);
+  --accent-foreground: oklch(0.975 0.004 95);
+  --selection: oklch(0.17 0.01 70);
+  --selection-foreground: oklch(0.975 0.004 95);
+  --destructive: oklch(0.52 0.2 28);
+  --destructive-foreground: oklch(0.985 0.003 95);
+  --success: oklch(0.5 0.13 150);
+  --success-foreground: oklch(0.985 0.003 95);
+  --warning: oklch(0.85 0.16 90);
+  --warning-foreground: oklch(0.17 0.01 70);
+  --highlight: oklch(0.62 0.21 35);
+  --highlight-foreground: oklch(0.17 0.01 70);
+  --sunken: oklch(0.925 0.005 95);
+  --overlay: oklch(0.17 0.01 70 / 0.5);
+  --border: oklch(0.17 0.01 70);
+  --input: oklch(0.17 0.01 70);
+  --ring: oklch(0.6 0.21 35);
+
+  --du-shade: var(--foreground);
+
+  --du-font-sans: var(--font-archivo, "Archivo"), ui-sans-serif, system-ui, sans-serif;
+  --du-font-display: var(--font-archivo, "Archivo"), ui-sans-serif, system-ui, sans-serif;
+  --du-font-mono: var(--font-martian, "Martian Mono"), ui-monospace, monospace;
+  --du-font-control: var(--du-font-mono);
+  --du-display-weight: 800;
+  --du-display-tracking: -0.025em;
+  --du-display-stretch: 125%;
+  --du-display-case: none;
+  --du-control-weight: 600;
+  --du-control-tracking: 0.04em;
+  --du-control-case: uppercase;
+  --du-text-control: 0.75rem;
+  --du-font-label: var(--du-font-mono);
+  --du-label-weight: 500;
+  --du-label-tracking: 0.06em;
+  --du-label-case: uppercase;
+  --du-text-label: 0.6875rem;
+
+  --radius: 0rem;
+  --du-radius-control: 0px;
+  --du-radius-field: 0px;
+  --du-radius-surface: 0px;
+  --du-radius-overlay: 0px;
+  --du-radius-item: 0px;
+  --du-radius-badge: 0px;
+  --du-radius-check: 0px;
+  --du-radius-avatar: 0px;
+  --du-radius-tooltip: 0px;
+  --du-h-sm: 2rem;
+  --du-h-md: 2.5rem;
+  --du-h-lg: 3rem;
+  --du-pad-control: 1rem;
+  --du-pad-surface: 1.5rem;
+  --du-gap-surface: 1.25rem;
+  --du-check-size: 1.25rem;
+  --du-avatar: 2.5rem;
+  --du-badge-h: 1.5rem;
+  --du-badge-px: 0.5rem;
+
+  --du-border-control: 2px;
+  --du-border-field: 2px;
+  --du-border-surface: 2px;
+  --du-border-overlay: 2px;
+  --du-border-check: 2px;
+  --du-rule: 2px;
+  --du-btn-border: var(--foreground);
+
+  --du-sheen: none;
+  --du-sheen-primary: none;
+  --du-shadow-control: 3px 3px 0 0 var(--du-shade);
+  --du-shadow-control-hover: 5px 5px 0 0 var(--du-shade);
+  --du-shadow-control-active: 0 0 0 0 var(--du-shade);
+  --du-shadow-primary: 3px 3px 0 0 var(--highlight);
+  --du-shadow-primary-hover: 5px 5px 0 0 var(--highlight);
+  --du-shadow-field: none;
+  --du-shadow-field-focus: 4px 4px 0 0 var(--highlight);
+  --du-field-outline: none;
+  --du-field-focus-border: var(--foreground);
+  --du-field-bg: var(--card);
+  --du-shadow-surface: 6px 6px 0 0 var(--du-shade);
+  --du-shadow-overlay: 8px 8px 0 0 var(--du-shade);
+  --du-shadow-check: none;
+  --du-shadow-check-on: 2px 2px 0 0 var(--highlight);
+  --du-shadow-thumb: 2px 2px 0 0 var(--du-shade);
+  --du-shadow-well: none;
+  --du-backdrop-filter: none;
+  --du-popover-bg: var(--popover);
+  --du-popover-filter: none;
+
+  --du-ease: cubic-bezier(0.7, 0, 0.3, 1);
+  --du-ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --du-ease-in: cubic-bezier(0.7, 0, 1, 0.5);
+  --du-dur-1: 90ms;
+  --du-dur-2: 150ms;
+  --du-dur-3: 220ms;
+  --du-hover-x: -2px;
+  --du-hover-y: -2px;
+  --du-active-x: 3px;
+  --du-active-y: 3px;
+  --du-active-scale: 1;
+  --du-overlay-in: du-wipe-in;
+  --du-overlay-out: du-wipe-out;
+  --du-dialog-in: du-drop-in;
+  --du-dialog-out: du-drop-out;
+  --du-check-anim: none;
+  --du-skeleton-anim: du-hatch 0.9s linear infinite;
+  --du-skeleton-image: repeating-linear-gradient(-45deg, oklch(from var(--foreground) l c h / 0.12) 0 2px, transparent 2px 8px);
+  --du-spinner-timing: steps(8);
+
+  --du-shadow-destructive: 3px 3px 0 0 var(--du-shade);
+  --du-shadow-destructive-hover: 5px 5px 0 0 var(--du-shade);
+  --du-shadow-field-invalid: 4px 4px 0 0 var(--destructive);
+  --du-accordion-last-rule: var(--border);
+  --du-skeleton-size: auto;
+  --du-shadow-surface-hover: 9px 9px 0 0 var(--du-shade);
+  --du-shadow-surface-active: 0 0 0 0 var(--du-shade);
+  --du-surface-hover-transform: translate(-3px, -3px);
+  --du-surface-active-transform: translate(6px, 6px);
+  --du-table-head-bg-solid: var(--foreground);
+  --du-tabs-trigger-bg: transparent;
+  --du-tabs-trigger-shadow: none;
+  --du-tabs-active-transform: none;
+  --du-switch-on-shadow: var(--du-switch-shadow);
+  --du-corner-shape: round;
+  --du-surface-image: none;
+  --du-surface-image-size: auto;
+  --du-surface-image-position: 0 0;
+  --du-focus-style: solid;
+  --du-surface-image-size-hover: auto;
+  --du-focus-width: 3px;
+  --du-focus-offset: 3px;
+  --du-focus-color: var(--ring);
+
+  --du-tabs-bg: var(--card);
+  --du-tabs-pad: 0px;
+  --du-tabs-gap: 0px;
+  --du-tabs-radius: 0px;
+  --du-tabs-border: 2px;
+  --du-tabs-shadow: 3px 3px 0 0 var(--du-shade);
+  --du-tabs-h: 2.25rem;
+  --du-tabs-trigger-radius: 0px;
+  --du-tabs-active-bg: var(--foreground);
+  --du-tabs-active-fg: var(--background);
+  --du-tabs-active-shadow: none;
+  --du-tabs-divider: 2px;
+
+  --du-switch-w: 3rem;
+  --du-switch-h: 1.625rem;
+  --du-switch-pad: 3px;
+  --du-switch-border: 2px;
+  --du-switch-radius: 0px;
+  --du-switch-off: var(--card);
+  --du-switch-on: var(--foreground);
+  --du-switch-thumb: var(--foreground);
+  --du-switch-thumb-on: var(--highlight);
+  --du-switch-thumb-radius: 0px;
+  --du-switch-thumb-shadow: none;
+  --du-switch-shadow: 2px 2px 0 0 var(--du-shade);
+  --du-switch-stretch: 1;
+
+  --du-track-h: 0.75rem;
+  --du-track-radius: 0px;
+  --du-track-bg: var(--card);
+  --du-track-border: 2px;
+  --du-range-bg: var(--foreground);
+  --du-range-image: repeating-linear-gradient(-45deg, oklch(from var(--background) l c h / 0.35) 0 2px, transparent 2px 6px);
+  --du-thumb-size: 1.375rem;
+  --du-thumb-radius: 0px;
+  --du-thumb-bg: var(--card);
+  --du-thumb-border: 2px;
+  --du-progress-h: 0.875rem;
+
+  --du-card-rule: 2px;
+  --du-accordion-bg: transparent;
+  --du-accordion-radius: 0px;
+  --du-accordion-shadow: none;
+  --du-accordion-px: 0px;
+  --du-accordion-gap: 0px;
+  --du-accordion-item-bg: transparent;
+  --du-accordion-item-radius: 0px;
+  --du-accordion-item-shadow: none;
+  --du-accordion-item-rule: 2px;
+
+  --du-table-head-bg: var(--foreground);
+  --du-table-head-fg: var(--background);
+  --du-table-head-font: var(--du-font-mono);
+  --du-table-head-case: uppercase;
+  --du-table-head-tracking: 0.06em;
+  --du-table-head-weight: 600;
+  --du-table-head-size: 0.6875rem;
+
+  --du-tooltip-bg: var(--foreground);
+  --du-tooltip-fg: var(--background);
+  --du-tooltip-font: var(--du-font-mono);
+  --du-tooltip-case: uppercase;
+  --du-tooltip-tracking: 0.05em;
+
+  --du-kbd-shadow: 1.5px 1.5px 0 0 var(--du-shade);
+  --du-drawer-handle: var(--foreground);
+  --du-drawer-handle-w: 3rem;
+  --du-drawer-handle-h: 0.375rem;
+  --du-drawer-handle-radius: 0px;
+}
+
+:where(:root.dark),
+[data-style="raw"]:is(.dark, .dark *) {
+  --background: oklch(0.165 0.006 70);
+  --foreground: oklch(0.95 0.006 95);
+  --card: oklch(0.2 0.006 70);
+  --card-foreground: oklch(0.95 0.006 95);
+  --popover: oklch(0.2 0.006 70);
+  --popover-foreground: oklch(0.95 0.006 95);
+  --primary: oklch(0.95 0.006 95);
+  --primary-foreground: oklch(0.165 0.006 70);
+  --secondary: oklch(0.27 0.006 70);
+  --secondary-foreground: oklch(0.95 0.006 95);
+  --muted: oklch(0.25 0.006 70);
+  --muted-foreground: oklch(0.75 0.01 90);
+  --accent: oklch(0.95 0.006 95);
+  --accent-foreground: oklch(0.165 0.006 70);
+  --selection: oklch(0.95 0.006 95);
+  --selection-foreground: oklch(0.165 0.006 70);
+  --destructive: oklch(0.66 0.2 30);
+  --destructive-foreground: oklch(0.165 0.006 70);
+  --success: oklch(0.74 0.15 150);
+  --success-foreground: oklch(0.165 0.006 70);
+  --warning: oklch(0.86 0.16 90);
+  --warning-foreground: oklch(0.165 0.006 70);
+  --highlight: oklch(0.68 0.19 37);
+  --highlight-foreground: oklch(0.165 0.006 70);
+  --sunken: oklch(0.13 0.005 70);
+  --overlay: oklch(0.08 0.005 70 / 0.7);
+  --border: oklch(0.95 0.006 95);
+  --input: oklch(0.95 0.006 95);
+  --ring: oklch(0.7 0.18 38);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Vector                                                                   */
+/* Minimal sci-fi blueprint. Light mode is a white print (blueprint-ink     */
+/* lines on paper); dark mode is a cyanotype (white lines on blueprint      */
+/* blue). Flat line drawing, small chamfers (corner-shape: bevel, square    */
+/* where unsupported), registration brackets on surfaces, dashed focus,     */
+/* ruler-tick meters. Overlays draw open from a center line.                */
+/* ------------------------------------------------------------------------ */
+
+[data-style="vector"] {
+  --background: oklch(0.985 0.004 250);
+  --foreground: oklch(0.36 0.12 258);
+  --card: oklch(0.985 0.004 250);
+  --card-foreground: oklch(0.36 0.12 258);
+  --popover: oklch(0.99 0.003 250);
+  --popover-foreground: oklch(0.36 0.12 258);
+  --primary: oklch(0.42 0.14 258);
+  --primary-foreground: oklch(0.985 0.004 250);
+  --secondary: oklch(0.955 0.012 255);
+  --secondary-foreground: oklch(0.36 0.12 258);
+  --muted: oklch(0.96 0.01 255);
+  --muted-foreground: oklch(0.5 0.07 258);
+  --accent: oklch(0.94 0.02 258);
+  --accent-foreground: oklch(0.36 0.12 258);
+  --selection: oklch(0.42 0.14 258);
+  --selection-foreground: oklch(0.985 0.004 250);
+  --destructive: oklch(0.54 0.2 25);
+  --destructive-foreground: oklch(0.99 0.005 25);
+  --success: oklch(0.5 0.12 165);
+  --success-foreground: oklch(0.99 0.005 165);
+  --warning: oklch(0.82 0.15 82);
+  --warning-foreground: oklch(0.27 0.06 62);
+  --highlight: oklch(0.42 0.14 258);
+  --highlight-foreground: oklch(0.985 0.004 250);
+  --sunken: oklch(0.965 0.008 255);
+  --overlay: oklch(0.36 0.12 258 / 0.16);
+  --border: oklch(0.8 0.05 258);
+  --input: oklch(0.66 0.09 258);
+  --ring: oklch(0.42 0.14 258);
+
+  --du-shade: oklch(0.36 0.12 258);
+  --du-line: oklch(0.42 0.14 258);
+
+  --du-font-sans: var(--font-geist, "Geist"), ui-sans-serif, system-ui, sans-serif;
+  --du-font-display: var(--font-chakra, "Chakra Petch"), ui-sans-serif, system-ui, sans-serif;
+  --du-font-mono: var(--font-geist-mono, "Geist Mono"), ui-monospace, monospace;
+  --du-font-control: var(--du-font-mono);
+  --du-display-weight: 500;
+  --du-display-tracking: 0em;
+  --du-display-stretch: 100%;
+  --du-display-case: none;
+  --du-control-weight: 500;
+  --du-control-tracking: 0.1em;
+  --du-control-case: uppercase;
+  --du-text-control: 0.75rem;
+  --du-font-label: var(--du-font-mono);
+  --du-label-weight: 500;
+  --du-label-tracking: 0.12em;
+  --du-label-case: uppercase;
+  --du-text-label: 0.6875rem;
+
+  --radius: 0.375rem;
+  --du-corner-shape: bevel;
+  --du-radius-control: 0.3125rem;
+  --du-radius-field: 0.3125rem;
+  --du-radius-surface: 0px;
+  --du-radius-overlay: 0.375rem;
+  --du-radius-item: 0px;
+  --du-radius-badge: 0.1875rem;
+  --du-radius-check: 0.125rem;
+  --du-radius-avatar: 26%;
+  --du-radius-tooltip: 0.1875rem;
+  --du-h-sm: 2rem;
+  --du-h-md: 2.25rem;
+  --du-h-lg: 2.75rem;
+  --du-pad-control: 1rem;
+  --du-pad-surface: 1.5rem;
+  --du-gap-surface: 1.25rem;
+  --du-check-size: 1.0625rem;
+  --du-avatar: 2.25rem;
+  --du-badge-h: 1.375rem;
+  --du-badge-px: 0.5rem;
+
+  --du-border-control: 1px;
+  --du-border-field: 1px;
+  --du-border-surface: 1px;
+  --du-border-overlay: 1px;
+  --du-border-check: 1px;
+  --du-rule: 1px;
+  --du-btn-border: var(--du-line);
+
+  /* flat line drawing: no sheen, no glow */
+  --du-sheen: none;
+  --du-sheen-primary: none;
+  --du-surface-image:
+    linear-gradient(var(--du-line), var(--du-line)), linear-gradient(var(--du-line), var(--du-line)),
+    linear-gradient(var(--du-line), var(--du-line)), linear-gradient(var(--du-line), var(--du-line)),
+    linear-gradient(var(--du-line), var(--du-line)), linear-gradient(var(--du-line), var(--du-line)),
+    linear-gradient(var(--du-line), var(--du-line)), linear-gradient(var(--du-line), var(--du-line));
+  --du-surface-image-size: 10px 2px, 2px 10px, 10px 2px, 2px 10px, 10px 2px, 2px 10px, 10px 2px, 2px 10px;
+  --du-surface-image-size-hover: 22px 2px, 2px 22px, 22px 2px, 2px 22px, 22px 2px, 2px 22px, 22px 2px, 2px 22px;
+  --du-surface-image-position: top left, top left, top right, top right, bottom left, bottom left, bottom right, bottom right;
+  --du-shadow-control: none;
+  --du-shadow-control-hover: 0 0 0 3px oklch(from var(--du-line) l c h / 0.12);
+  --du-shadow-control-active: none;
+  --du-shadow-primary: none;
+  --du-shadow-primary-hover: 0 0 0 3px oklch(from var(--du-line) l c h / 0.18);
+  --du-shadow-destructive: none;
+  --du-shadow-destructive-hover: 0 0 0 3px oklch(from var(--destructive) l c h / 0.2);
+  --du-shadow-field: none;
+  --du-shadow-field-focus: 0 0 0 3px oklch(from var(--du-line) l c h / 0.14);
+  --du-shadow-field-invalid: 0 0 0 3px oklch(from var(--destructive) l c h / 0.16);
+  --du-field-outline: none;
+  --du-field-focus-border: var(--du-line);
+  --du-field-bg: var(--background);
+  --du-shadow-surface: none;
+  --du-shadow-surface-hover: 0 0 0 1px var(--du-line);
+  --du-shadow-surface-active: 0 0 0 1px var(--du-line);
+  --du-surface-hover-transform: none;
+  --du-surface-active-transform: scale(0.995);
+  --du-shadow-overlay: 0 18px 40px -22px oklch(0.3 0.1 258 / 0.4);
+  --du-shadow-check: none;
+  --du-shadow-check-on: none;
+  --du-shadow-thumb: none;
+  --du-shadow-well: none;
+  --du-backdrop-filter: none;
+  --du-popover-bg: var(--popover);
+  --du-popover-filter: none;
+
+  --du-ease: cubic-bezier(0.2, 0.9, 0.1, 1);
+  --du-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --du-ease-in: cubic-bezier(0.6, 0, 1, 0.6);
+  --du-dur-1: 140ms;
+  --du-dur-2: 260ms;
+  --du-dur-3: 420ms;
+  --du-hover-x: 0px;
+  --du-hover-y: 0px;
+  --du-active-x: 0px;
+  --du-active-y: 0px;
+  --du-active-scale: 0.98;
+  --du-overlay-in: du-scan-in;
+  --du-overlay-out: du-scan-out;
+  --du-dialog-in: du-scan-in-lg;
+  --du-dialog-out: du-scan-out;
+  --du-check-anim: du-pop;
+  --du-skeleton-anim: du-hatch 1.4s linear infinite;
+  --du-skeleton-image: repeating-linear-gradient(-45deg, oklch(from var(--du-line) l c h / 0.16) 0 1px, transparent 1px 8px);
+  --du-skeleton-size: auto;
+  --du-spinner-timing: steps(12);
+
+  --du-focus-width: 1.5px;
+  --du-focus-style: dashed;
+  --du-focus-offset: 3px;
+  --du-focus-color: var(--ring);
+
+  --du-tabs-bg: transparent;
+  --du-tabs-pad: 0px;
+  --du-tabs-gap: 0px;
+  --du-tabs-radius: 0px;
+  --du-tabs-border: 0px;
+  --du-tabs-shadow: inset 0 -1px 0 var(--border);
+  --du-tabs-h: 2.25rem;
+  --du-tabs-trigger-radius: 0px;
+  --du-tabs-trigger-bg: transparent;
+  --du-tabs-trigger-shadow: none;
+  --du-tabs-active-bg: transparent;
+  --du-tabs-active-fg: var(--foreground);
+  --du-tabs-active-shadow: inset 0 -2px 0 var(--du-line);
+  --du-tabs-active-transform: none;
+  --du-tabs-divider: 0px;
+
+  --du-switch-w: 2.75rem;
+  --du-switch-h: 1.5rem;
+  --du-switch-pad: 3px;
+  --du-switch-border: 1px;
+  --du-switch-radius: 0.1875rem;
+  --du-switch-off: transparent;
+  --du-switch-on: oklch(from var(--du-line) l c h / 0.14);
+  --du-switch-on-shadow: none;
+  --du-switch-thumb: var(--muted-foreground);
+  --du-switch-thumb-on: var(--du-line);
+  --du-switch-thumb-radius: 0.0625rem;
+  --du-switch-thumb-shadow: none;
+  --du-switch-shadow: none;
+  --du-switch-stretch: 1;
+
+  --du-track-h: 0.375rem;
+  --du-track-radius: 0px;
+  --du-track-bg: transparent;
+  --du-track-border: 1px;
+  --du-range-bg: var(--du-line);
+  --du-range-image: repeating-linear-gradient(90deg, transparent 0 5px, var(--background) 5px 6px);
+  --du-thumb-size: 0.875rem;
+  --du-thumb-radius: 0px;
+  --du-thumb-bg: var(--background);
+  --du-thumb-border: 1.5px;
+  --du-progress-h: 0.5rem;
+
+  --du-card-rule: 1px;
+  --du-accordion-bg: transparent;
+  --du-accordion-radius: 0px;
+  --du-accordion-shadow: none;
+  --du-accordion-px: 0px;
+  --du-accordion-gap: 0px;
+  --du-accordion-item-bg: transparent;
+  --du-accordion-item-radius: 0px;
+  --du-accordion-item-shadow: none;
+  --du-accordion-item-rule: 1px;
+  --du-accordion-last-rule: var(--border);
+
+  --du-table-head-bg: transparent;
+  --du-table-head-bg-solid: var(--background);
+  --du-table-head-fg: var(--muted-foreground);
+  --du-table-head-font: var(--du-font-mono);
+  --du-table-head-case: uppercase;
+  --du-table-head-tracking: 0.12em;
+  --du-table-head-weight: 500;
+  --du-table-head-size: 0.6875rem;
+
+  --du-tooltip-bg: var(--primary);
+  --du-tooltip-fg: var(--primary-foreground);
+  --du-tooltip-font: var(--du-font-mono);
+  --du-tooltip-case: uppercase;
+  --du-tooltip-tracking: 0.08em;
+
+  --du-kbd-shadow: none;
+  --du-drawer-handle: var(--du-line);
+  --du-drawer-handle-w: 3rem;
+  --du-drawer-handle-h: 0.125rem;
+  --du-drawer-handle-radius: 0px;
+}
+
+[data-style="vector"]:is(.dark, .dark *) {
+  --background: oklch(0.34 0.1 258);
+  --foreground: oklch(0.97 0.012 240);
+  --card: oklch(0.34 0.1 258);
+  --card-foreground: oklch(0.97 0.012 240);
+  --popover: oklch(0.31 0.1 258);
+  --popover-foreground: oklch(0.97 0.012 240);
+  --primary: oklch(0.97 0.012 240);
+  --primary-foreground: oklch(0.31 0.1 258);
+  --secondary: oklch(0.39 0.1 258);
+  --secondary-foreground: oklch(0.97 0.012 240);
+  --muted: oklch(0.38 0.095 258);
+  --muted-foreground: oklch(0.86 0.04 245);
+  --accent: oklch(0.41 0.1 258);
+  --accent-foreground: oklch(0.97 0.012 240);
+  --selection: oklch(0.97 0.012 240);
+  --selection-foreground: oklch(0.31 0.1 258);
+  --destructive: oklch(0.76 0.15 25);
+  --destructive-foreground: oklch(0.22 0.06 25);
+  --success: oklch(0.84 0.13 165);
+  --success-foreground: oklch(0.22 0.05 165);
+  --warning: oklch(0.87 0.14 85);
+  --warning-foreground: oklch(0.24 0.05 62);
+  --highlight: oklch(0.97 0.012 240);
+  --highlight-foreground: oklch(0.31 0.1 258);
+  --sunken: oklch(0.3 0.095 258);
+  --overlay: oklch(0.18 0.08 258 / 0.6);
+  --border: oklch(0.6 0.08 255);
+  --input: oklch(0.74 0.06 250);
+  --ring: oklch(0.97 0.012 240);
+
+  --du-shade: oklch(0.2 0.08 258);
+  --du-line: oklch(0.97 0.012 240);
+  --du-shadow-overlay: 0 20px 44px -22px oklch(0.12 0.08 258 / 0.7);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Volume                                                                   */
+/* Real 3D. Every control is an extruded block with visible thickness:      */
+/* hover lifts it, press sinks it flush with the page. Nothing is recessed. */
+/* Overlays tilt up out of the page in perspective.                         */
+/* ------------------------------------------------------------------------ */
+
+[data-style="volume"] {
+  --background: oklch(0.948 0.011 265);
+  --foreground: oklch(0.22 0.035 268);
+  --card: oklch(0.993 0.003 265);
+  --card-foreground: oklch(0.22 0.035 268);
+  --popover: oklch(0.993 0.003 265);
+  --popover-foreground: oklch(0.22 0.035 268);
+  --primary: oklch(0.51 0.22 267);
+  --primary-foreground: oklch(0.985 0.01 267);
+  --secondary: oklch(0.993 0.003 265);
+  --secondary-foreground: oklch(0.22 0.035 268);
+  --muted: oklch(0.925 0.014 265);
+  --muted-foreground: oklch(0.46 0.035 268);
+  --accent: oklch(0.935 0.022 267);
+  --accent-foreground: oklch(0.22 0.035 268);
+  --selection: oklch(0.51 0.22 267);
+  --selection-foreground: oklch(0.985 0.01 267);
+  --destructive: oklch(0.56 0.21 25);
+  --destructive-foreground: oklch(0.99 0.005 25);
+  --success: oklch(0.53 0.14 155);
+  --success-foreground: oklch(0.99 0.005 155);
+  --warning: oklch(0.83 0.16 82);
+  --warning-foreground: oklch(0.28 0.06 62);
+  --highlight: oklch(0.51 0.22 267);
+  --highlight-foreground: oklch(0.985 0.01 267);
+  --sunken: oklch(0.925 0.014 265);
+  --overlay: oklch(0.22 0.035 268 / 0.34);
+  --border: oklch(0.855 0.022 265);
+  --input: oklch(0.83 0.024 265);
+  --ring: oklch(0.6 0.2 267);
+
+  --du-shade: oklch(0.25 0.06 268);
+  --du-hl: oklch(1 0 0 / 0.95);
+  --du-edge: oklch(0.79 0.03 266);
+  --du-edge-primary: oklch(0.36 0.19 267);
+  --du-edge-destructive: oklch(0.4 0.17 25);
+  --du-ambient: oklch(0.28 0.08 268 / 0.13);
+  --du-ambient-strong: oklch(0.26 0.09 268 / 0.24);
+
+  --du-font-sans: var(--font-onest, "Onest"), ui-sans-serif, system-ui, sans-serif;
+  --du-font-display: var(--font-bricolage, "Bricolage Grotesque"), ui-sans-serif, system-ui, sans-serif;
+  --du-font-mono: var(--font-geist-mono, "Geist Mono"), ui-monospace, monospace;
+  --du-font-control: var(--du-font-sans);
+  --du-display-weight: 700;
+  --du-display-tracking: -0.03em;
+  --du-display-stretch: 100%;
+  --du-display-case: none;
+  --du-control-weight: 600;
+  --du-control-tracking: -0.005em;
+  --du-control-case: none;
+  --du-text-control: 0.875rem;
+  --du-font-label: var(--du-font-sans);
+  --du-label-weight: 600;
+  --du-label-tracking: -0.003em;
+  --du-label-case: none;
+  --du-text-label: 0.8125rem;
+
+  --radius: 0.875rem;
+  --du-radius-control: 0.75rem;
+  --du-radius-field: 0.75rem;
+  --du-radius-surface: 1.25rem;
+  --du-radius-overlay: 1rem;
+  --du-radius-item: 0.625rem;
+  --du-radius-badge: 0.5rem;
+  --du-radius-check: 0.4375rem;
+  --du-radius-avatar: 999px;
+  --du-radius-tooltip: 0.5625rem;
+  --du-h-sm: 2.125rem;
+  --du-h-md: 2.625rem;
+  --du-h-lg: 3.125rem;
+  --du-pad-control: 1.125rem;
+  --du-pad-surface: 1.5rem;
+  --du-gap-surface: 1.25rem;
+  --du-check-size: 1.375rem;
+  --du-avatar: 2.5rem;
+  --du-badge-h: 1.5rem;
+  --du-badge-px: 0.5625rem;
+
+  --du-border-control: 0px;
+  --du-border-field: 0px;
+  --du-border-surface: 0px;
+  --du-border-overlay: 0px;
+  --du-border-check: 0px;
+  --du-rule: 1px;
+  --du-btn-border: transparent;
+
+  /* extrusion: a solid offset in the edge color is the block's side */
+  --du-sheen: linear-gradient(to bottom, oklch(1 0 0 / 0.6), oklch(1 0 0 / 0) 70%);
+  --du-sheen-primary: linear-gradient(to bottom, oklch(1 0 0 / 0.2), oklch(1 0 0 / 0) 60%);
+  --du-shadow-control: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 4px 0 0 var(--du-edge), 0 9px 14px -6px var(--du-ambient-strong);
+  --du-shadow-control-hover: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 6px 0 0 var(--du-edge), 0 16px 22px -8px var(--du-ambient-strong);
+  --du-shadow-control-active: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 0 0 0 var(--du-edge), 0 2px 4px -2px var(--du-ambient);
+  --du-shadow-primary: inset 0 1px 0 0 oklch(1 0 0 / 0.28), 0 0 0 1px var(--du-edge-primary), 0 4px 0 0 var(--du-edge-primary), 0 10px 18px -6px oklch(from var(--primary) l c h / 0.5);
+  --du-shadow-primary-hover: inset 0 1px 0 0 oklch(1 0 0 / 0.28), 0 0 0 1px var(--du-edge-primary), 0 6px 0 0 var(--du-edge-primary), 0 18px 26px -8px oklch(from var(--primary) l c h / 0.55);
+  --du-shadow-destructive: inset 0 1px 0 0 oklch(1 0 0 / 0.25), 0 0 0 1px var(--du-edge-destructive), 0 4px 0 0 var(--du-edge-destructive), 0 10px 18px -6px oklch(from var(--destructive) l c h / 0.45);
+  --du-shadow-destructive-hover: inset 0 1px 0 0 oklch(1 0 0 / 0.25), 0 0 0 1px var(--du-edge-destructive), 0 6px 0 0 var(--du-edge-destructive), 0 18px 26px -8px oklch(from var(--destructive) l c h / 0.5);
+  --du-shadow-field: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 3px 0 0 var(--du-edge), 0 6px 10px -6px var(--du-ambient);
+  --du-shadow-field-focus: inset 0 1px 0 0 var(--du-hl), 0 0 0 2px var(--ring), 0 3px 0 0 var(--du-edge-primary), 0 0 0 6px oklch(from var(--ring) l c h / 0.18);
+  --du-shadow-field-invalid: inset 0 1px 0 0 var(--du-hl), 0 0 0 2px var(--destructive), 0 3px 0 0 var(--du-edge-destructive);
+  --du-field-outline: none;
+  --du-field-focus-border: transparent;
+  --du-field-bg: var(--card);
+  --du-shadow-surface: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 6px 0 0 var(--du-edge), 0 20px 32px -14px var(--du-ambient-strong), 0 44px 70px -34px var(--du-ambient);
+  --du-shadow-surface-hover: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 10px 0 0 var(--du-edge), 0 30px 44px -16px var(--du-ambient-strong), 0 60px 90px -40px var(--du-ambient);
+  --du-shadow-surface-active: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 2px 0 0 var(--du-edge), 0 6px 10px -6px var(--du-ambient);
+  --du-surface-hover-transform: perspective(1200px) translateY(-4px) rotateX(2deg);
+  --du-surface-active-transform: translateY(4px);
+  --du-shadow-overlay: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 6px 0 0 var(--du-edge), 0 28px 50px -14px var(--du-ambient-strong), 0 60px 100px -40px var(--du-ambient-strong);
+  --du-shadow-check: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 2px 0 0 var(--du-edge);
+  --du-shadow-check-on: inset 0 1px 0 0 oklch(1 0 0 / 0.28), 0 0 0 1px var(--du-edge-primary), 0 2px 0 0 var(--du-edge-primary);
+  --du-shadow-thumb: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 3px 0 0 var(--du-edge), 0 8px 12px -4px var(--du-ambient-strong);
+  --du-shadow-well: 0 0 0 1px var(--du-edge), 0 2px 0 0 var(--du-edge);
+  --du-backdrop-filter: blur(2px);
+  --du-popover-bg: var(--popover);
+  --du-popover-filter: none;
+
+  --du-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --du-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --du-ease-in: cubic-bezier(0.5, 0, 0.75, 0);
+  --du-dur-1: 180ms;
+  --du-dur-2: 300ms;
+  --du-dur-3: 500ms;
+  --du-hover-x: 0px;
+  --du-hover-y: -2px;
+  --du-active-x: 0px;
+  --du-active-y: 4px;
+  --du-active-scale: 1;
+  --du-overlay-in: du-rise-in;
+  --du-overlay-out: du-rise-out;
+  --du-dialog-in: du-lift-in;
+  --du-dialog-out: du-lift-out;
+  --du-check-anim: du-pop;
+  --du-skeleton-anim: du-breathe 1.6s var(--du-ease) infinite;
+  --du-skeleton-image: none;
+  --du-skeleton-size: auto;
+  --du-spinner-timing: linear;
+
+  --du-corner-shape: round;
+  --du-surface-image: none;
+  --du-surface-image-size: auto;
+  --du-surface-image-position: 0 0;
+  --du-focus-style: solid;
+  --du-surface-image-size-hover: auto;
+  --du-focus-width: 2px;
+  --du-focus-offset: 4px;
+  --du-focus-color: var(--ring);
+
+  --du-tabs-bg: transparent;
+  --du-tabs-pad: 0px;
+  --du-tabs-gap: 0.5rem;
+  --du-tabs-radius: 0px;
+  --du-tabs-border: 0px;
+  --du-tabs-shadow: none;
+  --du-tabs-h: 2.25rem;
+  --du-tabs-trigger-radius: 0.625rem;
+  --du-tabs-trigger-bg: var(--card);
+  --du-tabs-trigger-shadow: var(--du-shadow-check);
+  --du-tabs-active-bg: var(--primary);
+  --du-tabs-active-fg: var(--primary-foreground);
+  --du-tabs-active-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.2), 0 0 0 1px var(--du-edge-primary), 0 0 0 0 var(--du-edge-primary);
+  --du-tabs-active-transform: translateY(2px);
+  --du-tabs-divider: 0px;
+
+  --du-switch-w: 3.25rem;
+  --du-switch-h: 1.875rem;
+  --du-switch-pad: 3px;
+  --du-switch-border: 0px;
+  --du-switch-radius: 999px;
+  --du-switch-off: var(--muted);
+  --du-switch-on: var(--primary);
+  --du-switch-on-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.2), 0 0 0 1px var(--du-edge-primary), 0 3px 0 0 var(--du-edge-primary);
+  --du-switch-thumb: var(--card);
+  --du-switch-thumb-on: var(--card);
+  --du-switch-thumb-radius: 999px;
+  --du-switch-thumb-shadow: inset 0 -2px 0 0 var(--du-edge), 0 0 0 1px var(--du-edge), 0 3px 6px -2px var(--du-ambient-strong);
+  --du-switch-shadow: 0 0 0 1px var(--du-edge), 0 3px 0 0 var(--du-edge);
+  --du-switch-stretch: 1.08;
+
+  --du-track-h: 0.625rem;
+  --du-track-radius: 999px;
+  --du-track-bg: var(--muted);
+  --du-track-border: 0px;
+  --du-range-bg: var(--primary);
+  --du-range-image: linear-gradient(to bottom, oklch(1 0 0 / 0.25), oklch(1 0 0 / 0));
+  --du-thumb-size: 1.5rem;
+  --du-thumb-radius: 999px;
+  --du-thumb-bg: var(--card);
+  --du-thumb-border: 0px;
+  --du-progress-h: 0.75rem;
+
+  --du-card-rule: 0px;
+  --du-accordion-bg: transparent;
+  --du-accordion-radius: 0px;
+  --du-accordion-shadow: none;
+  --du-accordion-px: 1.125rem;
+  --du-accordion-gap: 0.875rem;
+  --du-accordion-item-bg: var(--card);
+  --du-accordion-item-radius: var(--du-radius-overlay);
+  --du-accordion-item-shadow: var(--du-shadow-control);
+  --du-accordion-item-rule: 0px;
+  --du-accordion-last-rule: transparent;
+
+  --du-table-head-bg: var(--muted);
+  --du-table-head-bg-solid: var(--muted);
+  --du-table-head-fg: var(--muted-foreground);
+  --du-table-head-font: var(--du-font-sans);
+  --du-table-head-case: none;
+  --du-table-head-tracking: 0em;
+  --du-table-head-weight: 600;
+  --du-table-head-size: 0.8125rem;
+
+  --du-tooltip-bg: oklch(0.26 0.06 268);
+  --du-tooltip-fg: oklch(0.98 0.005 265);
+  --du-tooltip-font: var(--du-font-sans);
+  --du-tooltip-case: none;
+  --du-tooltip-tracking: 0em;
+
+  --du-kbd-shadow: inset 0 1px 0 0 var(--du-hl), 0 0 0 1px var(--du-edge), 0 2px 0 0 var(--du-edge);
+  --du-drawer-handle: var(--muted);
+  --du-drawer-handle-w: 3rem;
+  --du-drawer-handle-h: 0.4375rem;
+  --du-drawer-handle-radius: 999px;
+}
+
+[data-style="volume"]:is(.dark, .dark *) {
+  --background: oklch(0.2 0.03 270);
+  --foreground: oklch(0.955 0.01 265);
+  --card: oklch(0.265 0.035 270);
+  --card-foreground: oklch(0.955 0.01 265);
+  --popover: oklch(0.285 0.036 270);
+  --popover-foreground: oklch(0.955 0.01 265);
+  --primary: oklch(0.55 0.21 267);
+  --primary-foreground: oklch(0.99 0.005 267);
+  --secondary: oklch(0.3 0.036 270);
+  --secondary-foreground: oklch(0.955 0.01 265);
+  --muted: oklch(0.255 0.032 270);
+  --muted-foreground: oklch(0.75 0.03 265);
+  --accent: oklch(0.32 0.04 270);
+  --accent-foreground: oklch(0.955 0.01 265);
+  --selection: oklch(0.55 0.21 267);
+  --selection-foreground: oklch(0.99 0.005 267);
+  --destructive: oklch(0.64 0.2 25);
+  --destructive-foreground: oklch(0.16 0.03 25);
+  --success: oklch(0.74 0.15 155);
+  --success-foreground: oklch(0.17 0.04 155);
+  --warning: oklch(0.83 0.15 82);
+  --warning-foreground: oklch(0.22 0.05 62);
+  --highlight: oklch(0.7 0.17 267);
+  --highlight-foreground: oklch(0.16 0.04 267);
+  --sunken: oklch(0.17 0.025 270);
+  --overlay: oklch(0.08 0.02 270 / 0.62);
+  --border: oklch(0.34 0.035 270);
+  --input: oklch(0.37 0.036 270);
+  --ring: oklch(0.72 0.17 267);
+
+  --du-hl: oklch(1 0 0 / 0.09);
+  --du-edge: oklch(0.15 0.03 270);
+  --du-edge-primary: oklch(0.38 0.17 267);
+  --du-edge-destructive: oklch(0.42 0.16 25);
+  --du-ambient: oklch(0 0 0 / 0.35);
+  --du-ambient-strong: oklch(0 0 0 / 0.55);
+  --du-sheen: linear-gradient(to bottom, oklch(1 0 0 / 0.06), oklch(1 0 0 / 0) 70%);
+  --du-tooltip-bg: oklch(0.38 0.05 270);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Reduced motion and transparency                                          */
+/* Motion collapses to short fades; nothing travels or tilts.               */
+/* ------------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  :where(:root),
+  [data-style] {
+    --du-dur-1: 1ms;
+    --du-dur-2: 120ms;
+    --du-dur-3: 120ms;
+    --du-overlay-in: du-fade-in;
+    --du-overlay-out: du-fade-out;
+    --du-dialog-in: du-fade-in;
+    --du-dialog-out: du-fade-out;
+    --du-check-anim: none;
+    --du-skeleton-anim: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :where(:root),
+  [data-style] {
+    --du-popover-bg: var(--popover);
+    --du-popover-filter: none;
+    --du-backdrop-filter: none;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Base                                                                     */
+/* ------------------------------------------------------------------------ */
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
+  [data-style] {
+    color: var(--foreground);
+    font-family: var(--du-font-sans);
+  }
+
+  :where([data-style], :root) :focus-visible {
+    outline: var(--du-focus-width) var(--du-focus-style) var(--du-focus-color);
+    outline-offset: var(--du-focus-offset);
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Material layer                                                           */
+/* Shared rules that turn tokens into surfaces. Lives in `components` so    */
+/* any Tailwind utility passed through className still wins.                */
+/* ------------------------------------------------------------------------ */
+
+@layer components {
+  /* Display type: card, dialog, sheet, drawer, alert titles */
+  :where(
+      [data-slot="card-title"],
+      [data-slot="dialog-title"],
+      [data-slot="alert-dialog-title"],
+      [data-slot="sheet-title"],
+      [data-slot="drawer-title"],
+      [data-slot="empty-title"]
+    ) {
+    font-family: var(--du-font-display);
+    font-weight: var(--du-display-weight);
+    letter-spacing: var(--du-display-tracking);
+    font-stretch: var(--du-display-stretch);
+    text-transform: var(--du-display-case);
+  }
+
+  /* Labels: form labels, badges, kbd */
+  :where([data-slot="label"], [data-slot="form-label"]) {
+    font-family: var(--du-font-label);
+    font-weight: var(--du-label-weight);
+    letter-spacing: var(--du-label-tracking);
+    text-transform: var(--du-label-case);
+    font-size: var(--du-text-label);
+  }
+
+  /* Corner geometry: round everywhere except styles that bevel (Vector). */
+  :where(
+      [data-slot="button"],
+      [data-slot="toggle"],
+      [data-slot="toggle-group-item"],
+      [data-slot="input"],
+      [data-slot="input-wrapper"],
+      [data-slot="textarea"],
+      [data-slot="select-trigger"],
+      [data-slot="badge"],
+      [data-slot="checkbox"],
+      [data-slot="kbd"],
+      [data-slot="alert"],
+      [data-slot="popover-content"],
+      [data-slot="dropdown-menu-content"],
+      [data-slot="dropdown-menu-sub-content"],
+      [data-slot="select-content"],
+      [data-slot="tooltip-content"],
+      [data-slot="switch"],
+      [data-slot="switch-thumb"],
+      [data-slot="slider-thumb"],
+      [data-slot="avatar"],
+      [data-slot="command"],
+      [data-slot="navigation-menu-viewport"],
+      [data-sonner-toast]
+    ) {
+    corner-shape: var(--du-corner-shape);
+  }
+
+  /* Surface decoration (Vector draws corner brackets). */
+  :is([data-slot="card"], [data-slot="dialog-content"], [data-slot="alert-dialog-content"]) {
+    background-image: var(--du-surface-image);
+    background-size: var(--du-surface-image-size);
+    background-position: var(--du-surface-image-position);
+    background-repeat: no-repeat;
+  }
+
+  /* ---------------------------------------------------------------- button */
+  [data-slot="button"] {
+    font-family: var(--du-font-control);
+    font-weight: var(--du-control-weight);
+    font-size: var(--du-text-control);
+    letter-spacing: var(--du-control-tracking);
+    text-transform: var(--du-control-case);
+    line-height: 1;
+    border: var(--du-border-control) solid var(--du-btn-border);
+    background-image: var(--du-sheen);
+    box-shadow: var(--du-shadow-control);
+    transition-property: transform, box-shadow, background-color, color, border-color, opacity;
+    transition-duration: var(--du-dur-1);
+    transition-timing-function: var(--du-ease);
+    -webkit-tap-highlight-color: transparent;
+  }
+  [data-slot="button"][data-size="sm"] {
+    font-size: calc(var(--du-text-control) - 0.0625rem);
+  }
+  [data-slot="button"][data-size="lg"] {
+    font-size: calc(var(--du-text-control) + 0.0625rem);
+  }
+  [data-slot="button"]:where([data-variant="default"], [data-variant="destructive"]) {
+    background-image: var(--du-sheen-primary);
+    box-shadow: var(--du-shadow-primary);
+  }
+  [data-slot="button"][data-variant="destructive"] {
+    box-shadow: var(--du-shadow-destructive);
+  }
+  [data-slot="button"]:hover:not(:disabled, [aria-disabled="true"]) {
+    transform: translate(var(--du-hover-x), var(--du-hover-y));
+    box-shadow: var(--du-shadow-control-hover);
+  }
+  [data-slot="button"][data-variant="default"]:hover:not(:disabled, [aria-disabled="true"]) {
+    box-shadow: var(--du-shadow-primary-hover);
+  }
+  [data-slot="button"][data-variant="destructive"]:hover:not(:disabled, [aria-disabled="true"]) {
+    box-shadow: var(--du-shadow-destructive-hover);
+  }
+  [data-slot="button"]:active:not(:disabled, [aria-disabled="true"]),
+  [data-slot="button"][data-pressed]:not(:disabled) {
+    transform: translate(var(--du-active-x), var(--du-active-y)) scale(var(--du-active-scale));
+    box-shadow: var(--du-shadow-control-active);
+    transition-duration: calc(var(--du-dur-1) * 0.6);
+  }
+  [data-slot="button"]:where([data-variant="ghost"], [data-variant="link"]) {
+    border-color: transparent;
+    background-image: none;
+    box-shadow: none;
+  }
+  [data-slot="button"]:where([data-variant="ghost"], [data-variant="link"]):hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+  }
+  [data-slot="button"]:where([data-variant="ghost"], [data-variant="link"]):active:not(:disabled) {
+    transform: scale(var(--du-active-scale));
+    box-shadow: none;
+  }
+  [data-slot="button"][data-variant="link"] {
+    text-decoration-thickness: var(--du-rule);
+    text-underline-offset: 0.25em;
+  }
+
+  /* ------------------------------------------------------ toggle (pressed) */
+  [data-slot="toggle"],
+  [data-slot="toggle-group-item"] {
+    font-family: var(--du-font-control);
+    font-weight: var(--du-control-weight);
+    font-size: var(--du-text-control);
+    letter-spacing: var(--du-control-tracking);
+    text-transform: var(--du-control-case);
+    transition-property: transform, box-shadow, background-color, color;
+    transition-duration: var(--du-dur-1);
+    transition-timing-function: var(--du-ease);
+  }
+  [data-slot="toggle"][data-variant="outline"],
+  [data-slot="toggle-group-item"][data-variant="outline"] {
+    border: var(--du-border-control) solid var(--input);
+    background-image: var(--du-sheen);
+    box-shadow: var(--du-shadow-control);
+  }
+  [data-slot="toggle"][data-state="on"],
+  [data-slot="toggle-group-item"][data-state="on"] {
+    transform: translate(var(--du-active-x), var(--du-active-y));
+    box-shadow: var(--du-shadow-control-active);
+    background-image: none;
+  }
+  [data-slot="toggle-group"][data-variant="outline"] > [data-slot="toggle-group-item"][data-state="on"] {
+    transform: none;
+  }
+
+  /* ----------------------------------------------------------------- field */
+  [data-slot="input"],
+  [data-slot="input-wrapper"],
+  [data-slot="textarea"],
+  [data-slot="select-trigger"] {
+    border-width: var(--du-border-field);
+    border-style: solid;
+    box-shadow: var(--du-shadow-field);
+    transition-property: box-shadow, border-color, background-color, transform;
+    transition-duration: var(--du-dur-1);
+    transition-timing-function: var(--du-ease);
+  }
+  [data-slot="input"]:focus-visible,
+  [data-slot="input-wrapper"]:has(> input:focus-visible),
+  [data-slot="textarea"]:focus-visible,
+  [data-slot="select-trigger"]:focus-visible,
+  [data-slot="select-trigger"][data-state="open"] {
+    outline: var(--du-field-outline);
+    outline-offset: 0;
+    border-color: var(--du-field-focus-border);
+    box-shadow: var(--du-shadow-field-focus);
+    /* fields lift diagonally only in styles with a diagonal hover (Raw) */
+    transform: translate(var(--du-hover-x), var(--du-hover-x));
+  }
+  [data-slot="input"][aria-invalid="true"],
+  [data-slot="input-wrapper"][aria-invalid="true"],
+  [data-slot="textarea"][aria-invalid="true"],
+  [data-slot="select-trigger"][aria-invalid="true"] {
+    border-color: var(--destructive);
+  }
+  [data-slot="input"][aria-invalid="true"]:focus-visible,
+  [data-slot="textarea"][aria-invalid="true"]:focus-visible,
+  [data-slot="select-trigger"][aria-invalid="true"]:focus-visible {
+    outline-color: oklch(from var(--destructive) l c h / 0.36);
+    border-color: var(--destructive);
+    box-shadow: var(--du-shadow-field-invalid);
+  }
+  [data-slot="input-control"]:focus-visible {
+    outline: none;
+  }
+  [data-slot="input"]::placeholder,
+  [data-slot="textarea"]::placeholder {
+    color: var(--muted-foreground);
+    opacity: 1;
+  }
+  [data-slot="input"][type="file"]::file-selector-button {
+    font-family: var(--du-font-control);
+    text-transform: var(--du-control-case);
+    letter-spacing: var(--du-control-tracking);
+  }
+
+  /* -------------------------------------------------------- checkbox/radio */
+  [data-slot="checkbox"],
+  [data-slot="radio-group-item"] {
+    border: var(--du-border-check) solid var(--input);
+    box-shadow: var(--du-shadow-check);
+    transition-property: box-shadow, background-color, border-color, transform;
+    transition-duration: var(--du-dur-1);
+    transition-timing-function: var(--du-ease);
+  }
+  [data-slot="checkbox"][data-state="checked"],
+  [data-slot="checkbox"][data-state="indeterminate"] {
+    border-color: var(--primary);
+    background-image: var(--du-sheen-primary);
+    box-shadow: var(--du-shadow-check-on);
+  }
+  [data-slot="radio-group-item"][data-state="checked"] {
+    border-color: var(--primary);
+  }
+  [data-slot="checkbox"]:active:not(:disabled),
+  [data-slot="radio-group-item"]:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+  [data-slot="checkbox-indicator"] > svg,
+  [data-slot="radio-group-indicator"] > * {
+    animation: var(--du-check-anim) var(--du-dur-2) var(--du-ease-out);
+  }
+
+  /* ---------------------------------------------------------------- switch */
+  [data-slot="switch"] {
+    --_w: var(--du-switch-w);
+    --_h: var(--du-switch-h);
+    width: var(--_w);
+    height: var(--_h);
+    padding: var(--du-switch-pad);
+    border: var(--du-switch-border) solid var(--border);
+    border-radius: var(--du-switch-radius);
+    background-color: var(--du-switch-off);
+    box-shadow: var(--du-switch-shadow);
+    transition:
+      background-color var(--du-dur-2) var(--du-ease),
+      box-shadow var(--du-dur-2) var(--du-ease);
+  }
+  [data-slot="switch"][data-size="sm"] {
+    --_w: calc(var(--du-switch-w) * 0.78);
+    --_h: calc(var(--du-switch-h) * 0.78);
+  }
+  [data-slot="switch"][data-state="checked"] {
+    background-color: var(--du-switch-on);
+    box-shadow: var(--du-switch-on-shadow);
+  }
+  [data-slot="switch-thumb"] {
+    --_size: calc(var(--_h) - 2 * var(--du-switch-pad) - 2 * var(--du-switch-border));
+    width: var(--_size);
+    height: var(--_size);
+    border-radius: var(--du-switch-thumb-radius);
+    background-color: var(--du-switch-thumb);
+    box-shadow: var(--du-switch-thumb-shadow);
+    transform-origin: left center;
+    transform: translateX(0);
+    transition:
+      transform var(--du-dur-2) var(--du-ease-out),
+      background-color var(--du-dur-2) var(--du-ease);
+  }
+  [data-slot="switch-thumb"][data-state="checked"] {
+    transform-origin: right center;
+    transform: translateX(calc(var(--_w) - var(--_h)));
+    background-color: var(--du-switch-thumb-on);
+  }
+  [data-slot="switch"]:active:not(:disabled) > [data-slot="switch-thumb"] {
+    transform: scaleX(var(--du-switch-stretch));
+  }
+  [data-slot="switch"]:active:not(:disabled) > [data-slot="switch-thumb"][data-state="checked"] {
+    transform: translateX(calc(var(--_w) - var(--_h))) scaleX(var(--du-switch-stretch));
+  }
+
+  /* -------------------------------------------------------- slider/progress */
+  [data-slot="slider-track"],
+  [data-slot="progress"] {
+    border: var(--du-track-border) solid var(--border);
+    border-radius: var(--du-track-radius);
+    background-color: var(--du-track-bg);
+    box-shadow: var(--du-shadow-well);
+  }
+  [data-slot="slider-track"][data-orientation="horizontal"] {
+    height: var(--du-track-h);
+  }
+  [data-slot="slider-track"][data-orientation="vertical"] {
+    width: var(--du-track-h);
+  }
+  [data-slot="progress"] {
+    height: var(--du-progress-h);
+  }
+  [data-slot="slider-range"],
+  [data-slot="progress-indicator"] {
+    background-color: var(--du-range-bg);
+    background-image: var(--du-range-image);
+  }
+  [data-slot="progress-indicator"] {
+    transition: transform var(--du-dur-3) var(--du-ease-out);
+  }
+  [data-slot="slider-thumb"] {
+    width: var(--du-thumb-size);
+    height: var(--du-thumb-size);
+    border: var(--du-thumb-border) solid var(--border);
+    border-radius: var(--du-thumb-radius);
+    background-color: var(--du-thumb-bg);
+    box-shadow: var(--du-shadow-thumb);
+    transition:
+      transform var(--du-dur-1) var(--du-ease),
+      box-shadow var(--du-dur-1) var(--du-ease);
+  }
+  [data-slot="slider-thumb"]:hover {
+    transform: translate(var(--du-hover-x), var(--du-hover-y));
+  }
+  [data-slot="slider-thumb"]:active {
+    transform: translate(var(--du-active-x), var(--du-active-y)) scale(calc(2 - var(--du-active-scale)));
+    box-shadow: var(--du-shadow-control-active);
+  }
+
+  /* ------------------------------------------------------------------ tabs */
+  [data-slot="tabs-list"] {
+    gap: var(--du-tabs-gap);
+    padding: var(--du-tabs-pad);
+    border: var(--du-tabs-border) solid var(--border);
+    border-radius: var(--du-tabs-radius);
+    background-color: var(--du-tabs-bg);
+    box-shadow: var(--du-tabs-shadow);
+  }
+  [data-slot="tabs-trigger"] {
+    height: var(--du-tabs-h);
+    border-radius: var(--du-tabs-trigger-radius);
+    font-family: var(--du-font-control);
+    font-weight: var(--du-control-weight);
+    font-size: calc(var(--du-text-control) - 0.0625rem);
+    letter-spacing: var(--du-control-tracking);
+    text-transform: var(--du-control-case);
+    transition-property: background-color, color, box-shadow, transform;
+    transition-duration: var(--du-dur-2);
+    transition-timing-function: var(--du-ease-out);
+  }
+  [data-slot="tabs-trigger"]:not([data-state="active"]) {
+    background-color: var(--du-tabs-trigger-bg);
+    box-shadow: var(--du-tabs-trigger-shadow);
+  }
+  [data-slot="tabs-trigger"][data-state="active"] {
+    transform: var(--du-tabs-active-transform);
+  }
+  [data-slot="tabs-trigger"] + [data-slot="tabs-trigger"] {
+    border-inline-start: var(--du-tabs-divider) solid var(--border);
+  }
+  [data-slot="tabs-trigger"]:focus-visible {
+    outline-offset: calc(var(--du-focus-offset) * -1 - var(--du-focus-width));
+  }
+
+  /* ------------------------------------------------------------- surfaces */
+  [data-slot="card"] {
+    border: var(--du-border-surface) solid var(--border);
+    box-shadow: var(--du-shadow-surface);
+  }
+  [data-slot="card"][data-interactive] {
+    transition-property: transform, box-shadow, background-color, background-size;
+    transition-duration: var(--du-dur-2);
+    transition-timing-function: var(--du-ease-out);
+  }
+  [data-slot="card"][data-interactive]:hover {
+    transform: var(--du-surface-hover-transform);
+    box-shadow: var(--du-shadow-surface-hover);
+    background-size: var(--du-surface-image-size-hover);
+  }
+  [data-slot="card"][data-interactive]:active {
+    transform: var(--du-surface-active-transform);
+    box-shadow: var(--du-shadow-surface-active);
+    transition-duration: var(--du-dur-1);
+  }
+  [data-slot="card-header"] {
+    border-bottom: var(--du-card-rule) solid var(--border);
+  }
+  [data-slot="card"]:has(> [data-slot="card-header"] + *) > [data-slot="card-header"] {
+    padding-bottom: calc(var(--du-card-rule) * 8);
+  }
+  [data-slot="card-footer"]:where(.border-t) {
+    border-top-width: var(--du-rule);
+  }
+
+  [data-slot="alert"] {
+    border: max(var(--du-border-surface), 1px) solid var(--border);
+    box-shadow: var(--du-shadow-control);
+    background-image: var(--du-sheen);
+  }
+  [data-slot="alert"]:where([data-variant="destructive"], [data-variant="success"], [data-variant="warning"]) {
+    background-image: none;
+  }
+  [data-slot="alert-title"] {
+    font-family: var(--du-font-control);
+    font-weight: var(--du-control-weight);
+    letter-spacing: var(--du-control-tracking);
+    text-transform: var(--du-control-case);
+  }
+
+  [data-slot="badge"] {
+    font-family: var(--du-font-label);
+    font-weight: var(--du-label-weight);
+    letter-spacing: var(--du-label-tracking);
+    text-transform: var(--du-label-case);
+    font-size: min(var(--du-text-label), 0.75rem);
+    border-width: max(var(--du-border-check), 1px);
+    border-style: solid;
+  }
+
+  [data-slot="avatar"] {
+    border: calc(var(--du-border-check)) solid var(--border);
+    box-shadow: var(--du-shadow-check);
+  }
+  [data-slot="avatar-fallback"] {
+    font-family: var(--du-font-label);
+    font-weight: var(--du-label-weight);
+    letter-spacing: var(--du-label-tracking);
+    font-size: 0.8125rem;
+  }
+
+  [data-slot="separator"][data-orientation="horizontal"] {
+    height: var(--du-rule);
+  }
+  [data-slot="separator"][data-orientation="vertical"] {
+    width: var(--du-rule);
+  }
+
+  [data-slot="skeleton"] {
+    background-image: var(--du-skeleton-image);
+    background-size: var(--du-skeleton-size);
+    animation: var(--du-skeleton-anim);
+  }
+
+  [data-slot="kbd"] {
+    font-family: var(--du-font-mono);
+    border: max(var(--du-border-check) - 0.5px, 1px) solid var(--border);
+    box-shadow: var(--du-kbd-shadow);
+  }
+
+  [data-slot="spinner"] {
+    animation: du-spin 0.8s var(--du-spinner-timing) infinite;
+  }
+
+  /* ------------------------------------------------------------- accordion */
+  [data-slot="accordion"] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--du-accordion-gap);
+    border-radius: var(--du-accordion-radius);
+    background-color: var(--du-accordion-bg);
+    box-shadow: var(--du-accordion-shadow);
+  }
+  [data-slot="accordion-item"] {
+    padding-inline: var(--du-accordion-px);
+    border-bottom: var(--du-accordion-item-rule) solid var(--border);
+    border-radius: var(--du-accordion-item-radius);
+    background-color: var(--du-accordion-item-bg);
+    box-shadow: var(--du-accordion-item-shadow);
+  }
+  [data-slot="accordion-item"]:last-child {
+    border-bottom-color: transparent;
+  }
+  [data-slot="accordion-item"]:last-child {
+    border-bottom-color: var(--du-accordion-last-rule);
+  }
+  [data-slot="accordion-trigger"] {
+    font-family: var(--du-font-display);
+    font-weight: calc(var(--du-display-weight) - 150);
+    letter-spacing: calc(var(--du-display-tracking) * 0.4);
+  }
+  [data-slot="accordion-content"][data-state="open"] {
+    animation: du-accordion-down var(--du-dur-2) var(--du-ease-out);
+  }
+  [data-slot="accordion-content"][data-state="closed"] {
+    animation: du-accordion-up var(--du-dur-2) var(--du-ease-out);
+  }
+
+  /* ----------------------------------------------------------------- table */
+  [data-slot="table-header"] {
+    background-color: var(--du-table-head-bg);
+  }
+  [data-slot="table-head"] {
+    color: var(--du-table-head-fg);
+    font-family: var(--du-table-head-font);
+    font-weight: var(--du-table-head-weight);
+    font-size: var(--du-table-head-size);
+    letter-spacing: var(--du-table-head-tracking);
+    text-transform: var(--du-table-head-case);
+  }
+  [data-slot="table-row"] {
+    border-bottom: var(--du-rule) solid var(--border);
+  }
+  [data-slot="table-header"] [data-slot="table-row"] {
+    border-bottom-color: var(--border);
+  }
+  [data-slot="table-header"][data-sticky] [data-slot="table-head"] {
+    background-color: var(--du-table-head-bg-solid);
+  }
+
+  /* -------------------------------------------------------------- overlays */
+  [data-slot="popover-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="dropdown-menu-sub-content"],
+  [data-slot="select-content"],
+  [data-slot="hover-card-content"],
+  [data-slot="command-dialog-content"] {
+    border: var(--du-border-overlay) solid var(--border);
+    background-color: var(--du-popover-bg);
+    -webkit-backdrop-filter: var(--du-popover-filter);
+    backdrop-filter: var(--du-popover-filter);
+    box-shadow: var(--du-shadow-overlay);
+  }
+  [data-slot="popover-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="dropdown-menu-sub-content"],
+  [data-slot="select-content"],
+  [data-slot="hover-card-content"],
+  [data-slot="tooltip-content"] {
+    --_wipe: inset(0 0 100% 0);
+    --_rise-y: 6px;
+    --_rise-x: 0px;
+  }
+  :is(
+      [data-slot="popover-content"],
+      [data-slot="dropdown-menu-content"],
+      [data-slot="dropdown-menu-sub-content"],
+      [data-slot="select-content"],
+      [data-slot="hover-card-content"],
+      [data-slot="tooltip-content"]
+    )[data-side="top"] {
+    --_wipe: inset(100% 0 0 0);
+    --_rise-y: -6px;
+  }
+  :is(
+      [data-slot="popover-content"],
+      [data-slot="dropdown-menu-content"],
+      [data-slot="dropdown-menu-sub-content"],
+      [data-slot="select-content"],
+      [data-slot="hover-card-content"],
+      [data-slot="tooltip-content"]
+    )[data-side="left"] {
+    --_wipe: inset(0 0 0 100%);
+    --_rise-y: 0px;
+    --_rise-x: -6px;
+  }
+  :is(
+      [data-slot="popover-content"],
+      [data-slot="dropdown-menu-content"],
+      [data-slot="dropdown-menu-sub-content"],
+      [data-slot="select-content"],
+      [data-slot="hover-card-content"],
+      [data-slot="tooltip-content"]
+    )[data-side="right"] {
+    --_wipe: inset(0 100% 0 0);
+    --_rise-y: 0px;
+    --_rise-x: 6px;
+  }
+  [data-slot="popover-content"] {
+    transform-origin: var(--radix-popover-content-transform-origin);
+  }
+  [data-slot="dropdown-menu-content"] {
+    transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+  }
+  [data-slot="dropdown-menu-sub-content"] {
+    transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+  }
+  [data-slot="select-content"] {
+    transform-origin: var(--radix-select-content-transform-origin);
+  }
+  [data-slot="hover-card-content"] {
+    transform-origin: var(--radix-hover-card-content-transform-origin);
+  }
+  [data-slot="tooltip-content"] {
+    transform-origin: var(--radix-tooltip-content-transform-origin);
+  }
+  :is(
+      [data-slot="popover-content"],
+      [data-slot="dropdown-menu-content"],
+      [data-slot="dropdown-menu-sub-content"],
+      [data-slot="select-content"],
+      [data-slot="hover-card-content"],
+      [data-slot="tooltip-content"]
+    ):is([data-state="open"], [data-state="delayed-open"], [data-state="instant-open"]) {
+    animation: var(--du-overlay-in) var(--du-dur-2) var(--du-ease-out) both;
+  }
+  :is(
+      [data-slot="popover-content"],
+      [data-slot="dropdown-menu-content"],
+      [data-slot="dropdown-menu-sub-content"],
+      [data-slot="select-content"],
+      [data-slot="hover-card-content"],
+      [data-slot="tooltip-content"]
+    )[data-state="closed"] {
+    animation: var(--du-overlay-out) calc(var(--du-dur-2) * 0.6) var(--du-ease-in) both;
+  }
+
+  [data-slot="tooltip-content"] {
+    font-family: var(--du-tooltip-font);
+    text-transform: var(--du-tooltip-case);
+    letter-spacing: var(--du-tooltip-tracking);
+    -webkit-backdrop-filter: var(--du-popover-filter);
+    backdrop-filter: var(--du-popover-filter);
+    box-shadow: var(--du-shadow-control);
+  }
+
+  :is(
+      [data-slot="dropdown-menu-item"],
+      [data-slot="dropdown-menu-checkbox-item"],
+      [data-slot="dropdown-menu-radio-item"],
+      [data-slot="dropdown-menu-sub-trigger"],
+      [data-slot="select-item"],
+      [data-slot="command-item"]
+    ) {
+    transition: background-color calc(var(--du-dur-1) * 0.5) var(--du-ease);
+  }
+  :is([data-slot="dropdown-menu-label"], [data-slot="command-group"] [cmdk-group-heading], [data-slot="select-label"]) {
+    font-family: var(--du-font-label);
+    letter-spacing: var(--du-label-tracking);
+    text-transform: var(--du-label-case);
+  }
+  :is([data-slot="dropdown-menu-shortcut"], [data-slot="command-shortcut"]) {
+    font-family: var(--du-font-mono);
+  }
+
+  [data-slot="command"]:not([data-slot="dialog-content"] *) {
+    border: var(--du-border-overlay) solid var(--border);
+    box-shadow: var(--du-shadow-overlay);
+  }
+
+  /* dialog, alert dialog, sheet, drawer */
+  :is([data-slot="dialog-overlay"], [data-slot="alert-dialog-overlay"], [data-slot="sheet-overlay"], [data-slot="drawer-overlay"]) {
+    background-color: var(--overlay);
+    -webkit-backdrop-filter: var(--du-backdrop-filter);
+    backdrop-filter: var(--du-backdrop-filter);
+  }
+  :is([data-slot="dialog-overlay"], [data-slot="alert-dialog-overlay"], [data-slot="sheet-overlay"])[data-state="open"] {
+    animation: du-fade-in var(--du-dur-2) var(--du-ease-out) both;
+  }
+  :is([data-slot="dialog-overlay"], [data-slot="alert-dialog-overlay"], [data-slot="sheet-overlay"])[data-state="closed"] {
+    animation: du-fade-out calc(var(--du-dur-2) * 0.7) var(--du-ease-in) both;
+  }
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"], [data-slot="sheet-content"], [data-slot="drawer-content"]) {
+    border: var(--du-border-overlay) solid var(--border);
+    box-shadow: var(--du-shadow-overlay);
+  }
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"])[data-state="open"] {
+    animation: var(--du-dialog-in) var(--du-dur-3) var(--du-ease-out) both;
+  }
+  :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"])[data-state="closed"] {
+    animation: var(--du-dialog-out) calc(var(--du-dur-3) * 0.5) var(--du-ease-in) both;
+  }
+  [data-slot="sheet-content"][data-state="open"] {
+    animation: du-slide-in var(--du-dur-3) var(--du-ease-out) both;
+  }
+  [data-slot="sheet-content"][data-state="closed"] {
+    animation: du-slide-out calc(var(--du-dur-3) * 0.6) var(--du-ease-in) both;
+  }
+  [data-slot="sheet-content"][data-side="right"] {
+    --_slide: translateX(100%);
+    border-width: 0 0 0 var(--du-border-overlay);
+  }
+  [data-slot="sheet-content"][data-side="left"] {
+    --_slide: translateX(-100%);
+    border-width: 0 var(--du-border-overlay) 0 0;
+  }
+  [data-slot="sheet-content"][data-side="top"] {
+    --_slide: translateY(-100%);
+    border-width: 0 0 var(--du-border-overlay) 0;
+  }
+  [data-slot="sheet-content"][data-side="bottom"] {
+    --_slide: translateY(100%);
+    border-width: var(--du-border-overlay) 0 0 0;
+  }
+  [data-slot="drawer-handle"] {
+    width: var(--du-drawer-handle-w);
+    height: var(--du-drawer-handle-h);
+    border-radius: var(--du-drawer-handle-radius);
+    background-color: var(--du-drawer-handle);
+    box-shadow: var(--du-shadow-well);
+  }
+
+  /* navigation menu */
+  [data-slot="navigation-menu-trigger"],
+  [data-slot="navigation-menu-link"] {
+    transition: background-color var(--du-dur-1) var(--du-ease), color var(--du-dur-1) var(--du-ease);
+  }
+  [data-slot="navigation-menu-viewport"] {
+    border: var(--du-border-overlay) solid var(--border);
+    background-color: var(--du-popover-bg);
+    -webkit-backdrop-filter: var(--du-popover-filter);
+    backdrop-filter: var(--du-popover-filter);
+    box-shadow: var(--du-shadow-overlay);
+    transform-origin: top center;
+  }
+  [data-slot="navigation-menu-viewport"][data-state="open"] {
+    animation: var(--du-overlay-in) var(--du-dur-2) var(--du-ease-out) both;
+  }
+  [data-slot="navigation-menu-viewport"][data-state="closed"] {
+    animation: var(--du-overlay-out) calc(var(--du-dur-2) * 0.6) var(--du-ease-in) both;
+  }
+  [data-slot="navigation-menu-content"][data-motion^="from-"] {
+    animation: du-fade-in var(--du-dur-2) var(--du-ease-out) both;
+  }
+  [data-slot="navigation-menu-content"][data-motion^="to-"] {
+    animation: du-fade-out calc(var(--du-dur-2) * 0.6) var(--du-ease-in) both;
+  }
+
+  /* toast (sonner, unstyled mode) */
+  [data-sonner-toast] {
+    border: var(--du-border-overlay) solid var(--border);
+    background-color: var(--du-popover-bg);
+    -webkit-backdrop-filter: var(--du-popover-filter);
+    backdrop-filter: var(--du-popover-filter);
+    box-shadow: var(--du-shadow-overlay);
+  }
+  [data-sonner-toast] .sonner-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--du-dur-1) var(--du-ease);
+  }
+  [data-sonner-toast] .sonner-loader[data-visible="false"] {
+    opacity: 0;
+    pointer-events: none;
+  }
+  [data-sonner-toast] [data-title] {
+    font-family: var(--du-font-control);
+    font-weight: var(--du-control-weight);
+    letter-spacing: var(--du-control-tracking);
+    text-transform: var(--du-control-case);
+    font-size: var(--du-text-control);
+  }
+
+  /* calendar */
+  [data-slot="calendar"] [data-slot="button"][data-day] {
+    font-family: var(--du-font-sans);
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+  [data-slot="calendar"] [data-slot="button"][data-day]:is([data-selected-single="true"], [data-range-start="true"], [data-range-end="true"]) {
+    font-weight: 600;
+    box-shadow: var(--du-shadow-check-on);
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Keyframes                                                                */
+/* ------------------------------------------------------------------------ */
+
+@keyframes du-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes du-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+/* Scale from the trigger */
+@keyframes du-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+@keyframes du-scale-out {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+@keyframes du-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+@keyframes du-zoom-out {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+/* Halo: materialize out of a blur */
+@keyframes du-materialize {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translate(var(--_rise-x, 0), calc(var(--_rise-y, 0px) * 0.6)) scale(0.97);
+  }
+}
+@keyframes du-dematerialize {
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: scale(0.98);
+  }
+}
+@keyframes du-materialize-lg {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(10px) scale(0.96);
+  }
+}
+/* Vector: scan open from a center line */
+@keyframes du-scan-in {
+  0% {
+    opacity: 0;
+    clip-path: inset(50% 0 50% 0);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(-80px -80px -80px -80px);
+  }
+}
+@keyframes du-scan-out {
+  from {
+    clip-path: inset(-80px -80px -80px -80px);
+  }
+  to {
+    opacity: 0;
+    clip-path: inset(50% 0 50% 0);
+  }
+}
+@keyframes du-scan-in-lg {
+  0% {
+    opacity: 0;
+    clip-path: inset(49.5% 0 49.5% 0);
+  }
+  45% {
+    opacity: 1;
+    clip-path: inset(49.5% 0 49.5% 0);
+  }
+  100% {
+    clip-path: inset(-80px -80px -80px -80px);
+  }
+}
+/* Raw: hard wipe, like a slip of paper pulled out */
+@keyframes du-wipe-in {
+  from {
+    clip-path: var(--_wipe);
+  }
+  to {
+    clip-path: inset(-20px -20px -20px -20px);
+  }
+}
+@keyframes du-wipe-out {
+  from {
+    clip-path: inset(-20px -20px -20px -20px);
+  }
+  to {
+    clip-path: var(--_wipe);
+  }
+}
+@keyframes du-drop-in {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-12px);
+  }
+  to {
+    clip-path: inset(-20px -20px -20px -20px);
+  }
+}
+@keyframes du-drop-out {
+  from {
+    clip-path: inset(-20px -20px -20px -20px);
+  }
+  to {
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(12px);
+  }
+}
+/* Volume: rise toward the viewer in perspective */
+@keyframes du-rise-in {
+  from {
+    opacity: 0;
+    transform: perspective(900px) translate3d(var(--_rise-x), var(--_rise-y), -40px) rotateX(-6deg);
+  }
+}
+@keyframes du-rise-out {
+  to {
+    opacity: 0;
+    transform: perspective(900px) translate3d(var(--_rise-x), var(--_rise-y), -30px);
+  }
+}
+@keyframes du-lift-in {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) translate3d(0, 28px, -80px) rotateX(9deg);
+  }
+}
+@keyframes du-lift-out {
+  to {
+    opacity: 0;
+    transform: perspective(1400px) translate3d(0, 16px, -60px) rotateX(5deg);
+  }
+}
+@keyframes du-slide-in {
+  from {
+    transform: var(--_slide);
+  }
+}
+@keyframes du-slide-out {
+  to {
+    transform: var(--_slide);
+  }
+}
+@keyframes du-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+@keyframes du-accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes du-accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+@keyframes du-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+@keyframes du-hatch {
+  to {
+    background-position: 22.6px 0;
+  }
+}
+@keyframes du-breathe {
+  50% {
+    opacity: 0.55;
+  }
+}
+@keyframes du-indeterminate {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+@keyframes du-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
