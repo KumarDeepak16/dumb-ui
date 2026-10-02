@@ -72,15 +72,15 @@ export default function OpengraphImage() {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 1, letterSpacing: -2 }}>
-            Same components. Three materials.
+            Dumb components. Smart styles.
           </div>
           <div style={{ fontSize: 30, color: "#b9b3a6" }}>
-            shadcn-compatible React in Raw, Vector and Volume. ui.1619.in
+            shadcn-compatible React in Raw, Silk and Volume. ui.1619.in
           </div>
         </div>
         <div style={{ display: "flex", gap: 48 }}>
           <Sample label="Raw" bg="#f4f3ef" fg="#1c1a17" border="4px solid #f4f3ef" radius={0} shadow="8px 8px 0 #e4572e" />
-          <Sample label="Vector" bg="#0f1a24" fg="#7fe6f2" border="2px solid #7fe6f2" radius={6} shadow="0 0 28px rgba(127,230,242,0.45)" />
+          <Sample label="Silk" bg="#f6f2ee" fg="#2a221d" border="0px solid transparent" radius={999} shadow="0 12px 28px rgba(0,0,0,0.35)" />
           <Sample label="Volume" bg="#3b4fe0" fg="#ffffff" border="0px solid transparent" radius={16} shadow="0 8px 0 #1f2a8a" />
         </div>
       </div>

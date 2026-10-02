@@ -92,8 +92,8 @@ export default function InstallationPage() {
         <Prose>
           <p>
             Set <code>data-style</code> on <code>&lt;html&gt;</code> (or any
-            element) to <code>raw</code>, <code>vector</code> or{" "}
-            <code>volume</code>. Dark mode uses the shadcn convention: a{" "}
+            element) to <code>raw</code>, <code>silk</code>,{" "}
+            <code>volume</code> or <code>vector</code>. Dark mode uses the shadcn convention: a{" "}
             <code>dark</code> class on an ancestor. Without an attribute, Raw is
             the default.
           </p>

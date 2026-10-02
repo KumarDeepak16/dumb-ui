@@ -6,7 +6,7 @@ import { DocsPageHeader, DocsPager } from "@/components/site/docs-page"
 
 export const metadata: Metadata = {
   title: "Components",
-  description: "Every Dumb UI component, grouped by job. Each one renders in Raw, Vector and Volume.",
+  description: "Every Dumb UI component, grouped by job. Each one renders in Raw, Silk and Volume.",
   alternates: { canonical: "/docs/components" },
 }
 

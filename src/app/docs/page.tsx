@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
-import { STYLE_IDS, STYLE_META } from "@/lib/site-settings"
+import { CORE_STYLES, STYLE_META } from "@/lib/site-settings"
 import { componentDocs } from "@/docs/components"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -20,11 +20,11 @@ export default function IntroductionPage() {
     <div className="mx-auto w-full max-w-[64rem]">
       <DocsPageHeader
         title="Introduction"
-        description="Dumb UI is an open-source React component library on shadcn/ui conventions. One API, three complete visual languages: Raw, Vector and Volume."
+        description="Dumb UI is an open-source React component library on shadcn/ui conventions. One API, three core visual languages (Raw, Silk and Volume) plus extra styles (Vector, Halo)."
       />
 
       <div className="grid gap-3 md:grid-cols-3">
-        {STYLE_IDS.map((name) => (
+        {CORE_STYLES.map((name) => (
           <StyleScope
             key={name}
             name={name}
@@ -50,8 +50,8 @@ export default function IntroductionPage() {
             Most kits change color and call it a theme. Dumb UI changes the
             material: type, geometry, border weight, shadow model, motion
             curves, focus treatment and how a control physically responds to a
-            press. A Raw button shifts against a hard shadow, a Vector button
-            gains a construction ring, a Volume button sinks into the page.
+            press. A Raw button shifts against a hard shadow, a Silk button
+            squeezes softly, a Volume button sinks into the page.
           </p>
           <p>
             The markup never changes. This renders correctly in all three:

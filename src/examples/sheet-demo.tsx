@@ -34,7 +34,7 @@ export default function SheetDemo() {
         </SheetHeader>
         <div className="grid gap-6 px-(--du-pad-surface)">
           <fieldset className="grid gap-3">
-            <legend className="site-label mb-3 text-muted-foreground">Status</legend>
+            <legend className="du-label mb-3 text-muted-foreground">Status</legend>
             {statuses.map((status) => (
               <div key={status} className="flex items-center gap-3">
                 <Checkbox id={`status-${status}`} defaultChecked={status !== "Canceled"} />

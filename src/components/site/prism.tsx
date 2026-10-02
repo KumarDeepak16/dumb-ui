@@ -4,7 +4,8 @@ import * as React from "react"
 import { CheckCircleIcon, GithubLogoIcon } from "@phosphor-icons/react/ssr"
 
 import { cn } from "@/lib/utils"
-import { STYLE_META } from "@/lib/site-settings"
+import { STYLE_META, styleTrio } from "@/lib/site-settings"
+import { useSiteSettings } from "@/components/site/settings-provider"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarGroup } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -23,7 +24,7 @@ import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
-import { DUMB_STYLES, type DumbStyle } from "@/components/ui/style-scope"
+import { type DumbStyle } from "@/components/ui/style-scope"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type SceneState = {
@@ -45,7 +46,9 @@ function Prism() {
   const captions = React.useRef<(HTMLDivElement | null)[]>([])
   const handles = React.useRef<(HTMLDivElement | null)[]>([])
   const seams = React.useRef<[number, number]>([100 / 3, 200 / 3])
-  const [active, setActive] = React.useState<DumbStyle>("vector")
+  const { style: siteStyle } = useSiteSettings()
+  const trio = styleTrio(siteStyle)
+  const [active, setActive] = React.useState<DumbStyle>("silk")
   const [state, setState] = React.useState<SceneState>({
     checks: true,
     previews: true,
@@ -64,7 +67,10 @@ function Prism() {
       caption?.toggleAttribute("data-narrow", widths[i] < 14)
     })
     handles.current.forEach((handle, i) => {
-      handle?.setAttribute("aria-valuenow", String(Math.round(seams.current[i])))
+      handle?.setAttribute(
+        "aria-valuenow",
+        String(Math.round(seams.current[i]))
+      )
     })
   }, [])
 
@@ -72,7 +78,9 @@ function Prism() {
     (index: 0 | 1, value: number) => {
       const [a, b] = seams.current
       const clamped =
-        index === 0 ? Math.min(Math.max(value, 0), b) : Math.max(Math.min(value, 100), a)
+        index === 0
+          ? Math.min(Math.max(value, 0), b)
+          : Math.max(Math.min(value, 100), a)
       seams.current = index === 0 ? [clamped, b] : [a, clamped]
       apply()
     },
@@ -95,7 +103,10 @@ function Prism() {
       const t = Math.min((now - start) / duration, 1)
       const ta = ease(Math.min(t * 1.25, 1))
       const tb = ease(Math.max(t * 1.25 - 0.25, 0))
-      seams.current = [target[0] * ta, target[0] * ta + (target[1] - target[0] * ta) * tb]
+      seams.current = [
+        target[0] * ta,
+        target[0] * ta + (target[1] - target[0] * ta) * tb,
+      ]
       apply()
       if (t < 1) frame = requestAnimationFrame(tick)
     }
@@ -113,7 +124,7 @@ function Prism() {
   const onStageMove = (event: React.PointerEvent) => {
     const x = percentAt(event.clientX)
     const [a, b] = seams.current
-    const next: DumbStyle = x < a ? "raw" : x < b ? "vector" : "volume"
+    const next: DumbStyle = x < a ? trio[0] : x < b ? trio[1] : trio[2]
     if (next !== active) setActive(next)
   }
 
@@ -124,7 +135,7 @@ function Prism() {
     >
       {/* Annotation band: what changes in each material, tied to its region. */}
       <div aria-hidden="true" className="relative h-20 shrink-0 sm:h-24">
-        {DUMB_STYLES.map((style, i) => (
+        {trio.map((style, i) => (
           <div
             key={style}
             ref={(node) => {
@@ -133,8 +144,13 @@ function Prism() {
             className="site-annotation absolute bottom-0 flex -translate-x-1/2 flex-col items-center"
             style={{ left: regionCenter[i], ["--i" as string]: i }}
           >
-            <span data-style={style} className="site-annotation-tag bg-transparent">
-              <span className="site-label whitespace-nowrap text-foreground">{STYLE_META[style].label}</span>
+            <span
+              data-style={style}
+              className="site-annotation-tag bg-transparent"
+            >
+              <span className="site-label whitespace-nowrap text-foreground">
+                {STYLE_META[style].label}
+              </span>
             </span>
             <span className="mt-1 hidden font-mono text-[0.6875rem] whitespace-nowrap text-muted-foreground sm:block">
               {SPECS[style]}
@@ -158,7 +174,10 @@ function Prism() {
           <span
             key={pos}
             aria-hidden="true"
-            className={cn("site-crop pointer-events-none absolute size-4 border-foreground/50", pos)}
+            className={cn(
+              "site-crop pointer-events-none absolute size-4 border-foreground/50",
+              pos
+            )}
           />
         ))}
 
@@ -167,7 +186,7 @@ function Prism() {
           onPointerMove={onStageMove}
           className="relative isolate h-full min-h-[32rem] w-full overflow-hidden rounded-(--du-radius-surface) border-(length:--du-border-surface) border-border shadow-(--du-shadow-surface)"
         >
-          {DUMB_STYLES.map((style) => (
+          {trio.map((style) => (
             <div
               key={style}
               data-style={style}
@@ -175,9 +194,9 @@ function Prism() {
               className="site-canvas absolute inset-0 flex items-center justify-center overflow-hidden"
               style={{
                 clipPath:
-                  style === "raw"
+                  style === trio[0]
                     ? "inset(0 calc(100% - var(--seam-a)) 0 0)"
-                    : style === "vector"
+                    : style === trio[1]
                       ? "inset(0 calc(100% - var(--seam-b)) 0 var(--seam-a))"
                       : "inset(0 0 0 var(--seam-b))",
               }}
@@ -194,15 +213,17 @@ function Prism() {
               }}
               role="slider"
               tabIndex={0}
-              aria-label={index === 0 ? "Seam between Raw and Vector" : "Seam between Vector and Volume"}
+              aria-label={`Seam between ${STYLE_META[trio[index]].label} and ${STYLE_META[trio[index + 1]].label}`}
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={index === 0 ? 33 : 67}
               onKeyDown={(event) => {
                 const step = event.shiftKey ? 10 : 2
                 const current = seams.current[index]
-                if (event.key === "ArrowLeft" || event.key === "ArrowDown") setSeam(index, current - step)
-                else if (event.key === "ArrowRight" || event.key === "ArrowUp") setSeam(index, current + step)
+                if (event.key === "ArrowLeft" || event.key === "ArrowDown")
+                  setSeam(index, current - step)
+                else if (event.key === "ArrowRight" || event.key === "ArrowUp")
+                  setSeam(index, current + step)
                 else if (event.key === "Home") setSeam(index, 0)
                 else if (event.key === "End") setSeam(index, 100)
                 else return
@@ -212,7 +233,8 @@ function Prism() {
                 event.currentTarget.setPointerCapture(event.pointerId)
               }}
               onPointerMove={(event) => {
-                if (!event.currentTarget.hasPointerCapture(event.pointerId)) return
+                if (!event.currentTarget.hasPointerCapture(event.pointerId))
+                  return
                 setSeam(index, percentAt(event.clientX))
               }}
               className="group absolute inset-y-0 z-20 -ml-5 flex w-10 cursor-ew-resize touch-none items-center justify-center outline-none"
@@ -233,8 +255,10 @@ function Prism() {
 
 const SPECS: Record<DumbStyle, string> = {
   raw: "0 radius / 2px rule / hard shadow",
-  vector: "chamfer / line drawing / blueprint",
+  silk: "pill / soft shadow / squeeze",
   volume: "12px / 4px extrusion / lift",
+  vector: "chamfer / line drawing / blueprint",
+  halo: "10px / hairline / glow",
 }
 
 const regionCenter = [
@@ -285,7 +309,10 @@ function Scene({
           <CardDescription>feat/checkout at 8f2c1a</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-5">
-          <Tabs value={state.tab} onValueChange={(tab) => setState((s) => ({ ...s, tab }))}>
+          <Tabs
+            value={state.tab}
+            onValueChange={(tab) => setState((s) => ({ ...s, tab }))}
+          >
             <TabsList className="w-full">
               <TabsTrigger value="build">Build</TabsTrigger>
               <TabsTrigger value="env">Env</TabsTrigger>
@@ -305,13 +332,17 @@ function Scene({
             <Switch
               id={`${id}-prism-comments`}
               checked={state.previews}
-              onCheckedChange={(previews) => setState((s) => ({ ...s, previews }))}
+              onCheckedChange={(previews) =>
+                setState((s) => ({ ...s, previews }))
+              }
             />
           </div>
           <div className="grid gap-3">
             <div className="flex items-center justify-between">
               <Label id={`${id}-prism-traffic`}>Canary traffic</Label>
-              <span className="font-mono text-xs tabular-nums">{state.traffic[0]}%</span>
+              <span className="font-mono text-xs tabular-nums">
+                {state.traffic[0]}%
+              </span>
             </div>
             <Slider
               aria-labelledby={`${id}-prism-traffic`}
@@ -346,12 +377,22 @@ function Scene({
             <Progress value={79} aria-label="Build minutes used" />
             <div className="flex items-center justify-between">
               <AvatarGroup max={3}>
-                <Avatar><AvatarFallback>DK</AvatarFallback></Avatar>
-                <Avatar><AvatarFallback>RM</AvatarFallback></Avatar>
-                <Avatar><AvatarFallback>LS</AvatarFallback></Avatar>
-                <Avatar><AvatarFallback>JT</AvatarFallback></Avatar>
+                <Avatar>
+                  <AvatarFallback>DK</AvatarFallback>
+                </Avatar>
+                <Avatar>
+                  <AvatarFallback>RM</AvatarFallback>
+                </Avatar>
+                <Avatar>
+                  <AvatarFallback>LS</AvatarFallback>
+                </Avatar>
+                <Avatar>
+                  <AvatarFallback>JT</AvatarFallback>
+                </Avatar>
               </AvatarGroup>
-              <Button size="sm" variant="secondary">Invite</Button>
+              <Button size="sm" variant="secondary">
+                Invite
+              </Button>
             </div>
           </CardContent>
         </Card>

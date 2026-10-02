@@ -9,6 +9,7 @@ import { readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import postcss, { type ChildNode } from "postcss"
 
+import { blockDocs } from "../src/docs/blocks"
 import { componentDocs } from "../src/docs/components"
 
 const root = path.join(import.meta.dirname, "..")
@@ -76,6 +77,19 @@ const registry = {
         {
           path: `src/components/ui/${doc.slug}.tsx`,
           type: "registry:ui",
+        },
+      ],
+    })),
+    ...blockDocs.map((block) => ({
+      name: block.name,
+      type: "registry:block",
+      title: block.title,
+      description: block.description,
+      registryDependencies: [item("dumb-ui"), ...block.uses.map(item)],
+      files: [
+        {
+          path: `src/examples/${block.name}.tsx`,
+          type: "registry:component",
         },
       ],
     })),

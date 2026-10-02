@@ -1,18 +1,38 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
-import { STYLE_IDS, STYLE_META } from "@/lib/site-settings"
+import { CORE_STYLES, STYLE_IDS, STYLE_META } from "@/lib/site-settings"
 import { CodeBlock } from "@/components/site/code-block"
-import { DocsPageHeader, DocsPager, DocsSection, Prose } from "@/components/site/docs-page"
+import {
+  DocsPageHeader,
+  DocsPager,
+  DocsSection,
+  Prose,
+} from "@/components/site/docs-page"
 import { TokenCompare } from "@/components/site/token-compare"
 
 export const metadata: Metadata = {
   title: "Styles",
-  description: "Raw, Vector and Volume: three complete visual languages on one component API.",
+  description:
+    "Raw, Silk and Volume: three complete visual languages on one component API.",
   alternates: { canonical: "/docs/styles" },
 }
 
 const notes: Record<string, string[]> = {
+  halo: [
+    "Geist with tight tracking. Monochrome primary, one mint accent.",
+    "Rim-lit hairline surfaces and soft, tinted depth.",
+    "Hover and focus gather a glowing halo instead of moving the control.",
+    "Overlays materialize out of a blur. Switches and sliders glow when on.",
+    "Translucent menus with backdrop blur; solid under reduced transparency.",
+  ],
+  silk: [
+    "Figtree throughout, sentence case, bold display weight.",
+    "Pill buttons and tabs, filled fields with no visible border until focus.",
+    "Diffuse warm shadows. Hover lifts a hair, press squeezes to 96%.",
+    "Rose is the single accent: switches, sliders, progress, focus.",
+    "Overlays pop in with a hair of overshoot. Built for everyday product UI.",
+  ],
   raw: [
     "Archivo at 125% width for display, Martian Mono capitals for controls and labels.",
     "Zero radius. 2px ink rules on every control and surface.",
@@ -41,13 +61,22 @@ export default function StylesPage() {
     <div className="mx-auto w-full max-w-[64rem]">
       <DocsPageHeader
         title="Styles"
-        description="Three complete visual languages. Not color themes: each one owns its type, geometry, borders, shadows, motion, focus and press physics."
+        description="Three core visual languages and one extra. Not color themes: each one owns its type, geometry, borders, shadows, motion, focus and press physics."
       />
 
       <TokenCompare />
 
       {STYLE_IDS.map((style) => (
-        <DocsSection key={style} id={style} title={STYLE_META[style].label} description={STYLE_META[style].description}>
+        <DocsSection
+          key={style}
+          id={style}
+          title={
+            CORE_STYLES.includes(style)
+              ? STYLE_META[style].label
+              : `${STYLE_META[style].label} (extra)`
+          }
+          description={STYLE_META[style].description}
+        >
           <Prose>
             <ul>
               {notes[style].map((note) => (
@@ -76,12 +105,18 @@ export default function StylesPage() {
       <DocsSection id="a11y" title="Accessibility in every style">
         <Prose>
           <ul>
-            <li>Each style defines its own visible focus treatment; none rely on color alone.</li>
+            <li>
+              Each style defines its own visible focus treatment; none rely on
+              color alone.
+            </li>
             <li>
               Under <code>prefers-reduced-motion</code> every style collapses
               overlay motion to a short fade and stops looping animations.
             </li>
-            <li>Text and control colors are checked for WCAG AA in light and dark for all three.</li>
+            <li>
+              Text and control colors are checked for WCAG AA in light and dark
+              for all three.
+            </li>
           </ul>
         </Prose>
       </DocsSection>

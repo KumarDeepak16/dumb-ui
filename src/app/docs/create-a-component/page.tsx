@@ -53,7 +53,7 @@ export default function CreateComponentPage() {
     <div className="mx-auto w-full max-w-[64rem]">
       <DocsPageHeader
         title="Create a component"
-        description="Write the component once. If it only reads tokens, it already works in Raw, Vector and Volume."
+        description="Write the component once. If it only reads tokens, it already works in Raw, Silk and Volume."
       />
 
       <DocsSection id="rules" title="The rules">

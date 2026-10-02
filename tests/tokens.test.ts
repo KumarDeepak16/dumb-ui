@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest"
 const css = readFileSync(path.join(__dirname, "..", "src", "styles", "dumb-ui.css"), "utf8")
 const root = postcss.parse(css)
 
-const STYLES = ["raw", "vector", "volume"] as const
+const STYLES = ["raw", "silk", "volume", "vector", "halo"] as const
 
 function declaredIn(match: (selector: string) => boolean) {
   const props = new Set<string>()
@@ -31,12 +31,12 @@ const used = new Set<string>()
 for (const match of css.matchAll(/var\((--(?:du-[\w-]+|[a-z-]+))/g)) used.add(match[1])
 const external = new Set([
   "--font-archivo", "--font-martian", "--font-onest", "--font-geist", "--font-geist-mono",
-  "--font-bricolage", "--font-chakra", "--radix-accordion-content-height", "--radix-popover-content-transform-origin",
+  "--font-bricolage", "--font-chakra", "--font-figtree", "--radix-accordion-content-height", "--radix-popover-content-transform-origin",
   "--radix-dropdown-menu-content-transform-origin", "--radix-select-content-transform-origin",
   "--radix-hover-card-content-transform-origin", "--radix-tooltip-content-transform-origin",
   "--_w", "--_h", "--_size", "--_wipe", "--_rise-x", "--_rise-y", "--_slide",
   // style-private helpers, read only inside the block that defines them
-  "--du-hl", "--du-edge", "--du-edge-primary", "--du-edge-destructive", "--du-ambient", "--du-ambient-strong", "--du-glow", "--du-line",
+  "--du-hl", "--du-edge", "--du-edge-primary", "--du-edge-destructive", "--du-ambient", "--du-ambient-strong", "--du-glow", "--du-line", "--du-rose",
 ])
 const contract = [...used].filter((token) => !external.has(token))
 
@@ -49,8 +49,7 @@ describe("style token contract", () => {
 
   it("all three light blocks define the same token set", () => {
     const sets = STYLES.map((style) => [...lightBlock(style)].filter((t) => contract.includes(t)).sort())
-    expect(sets[1]).toEqual(sets[0])
-    expect(sets[2]).toEqual(sets[0])
+    for (const set of sets.slice(1)) expect(set).toEqual(sets[0])
   })
 
   it.each(STYLES)("%s has a dark block that overrides the core colors", (style) => {

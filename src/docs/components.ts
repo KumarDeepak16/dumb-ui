@@ -6,6 +6,7 @@ export type ComponentGroup =
   | "Feedback"
   | "Display"
   | "Utilities"
+  | "Originals"
 
 export type PropRow = {
   prop: string
@@ -206,7 +207,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     slug: "label",
     title: "Label",
-    description: "Accessible label for a control. Raw and Vector set labels in mono capitals; Volume stays sentence case.",
+    description: "Accessible label for a control. Raw and Vector set labels in mono capitals; Silk and Volume stay sentence case.",
     group: "Forms",
     primitive: radix("Label", "label"),
     dependencies: ["radix-ui"],
@@ -294,7 +295,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     slug: "switch",
     title: "Switch",
-    description: "Instant on/off. Raw snaps a square block, Vector draws a square thumb along an outlined track, Volume slides a 3D knob along a raised track.",
+    description: "Instant on/off. Raw snaps a square block, Silk stretches a soft pill, Volume slides a 3D knob along a raised track.",
     group: "Forms",
     primitive: radix("Switch", "switch"),
     dependencies: ["radix-ui"],
@@ -393,7 +394,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     slug: "dialog",
     title: "Dialog",
-    description: "A modal window for focused tasks. Raw drops in, Vector scans open from a center line, Volume tilts up in perspective.",
+    description: "A modal window for focused tasks. Raw drops in, Silk pops softly, Volume tilts up in perspective, Vector draws open from a center line.",
     group: "Overlays",
     primitive: radix("Dialog", "dialog"),
     dependencies: ["radix-ui", "@phosphor-icons/react"],
@@ -584,7 +585,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     slug: "tabs",
     title: "Tabs",
-    description: "Switch between views in place. Raw inverts, Vector draws an underline, Volume presses the active key down.",
+    description: "Switch between views in place. Raw inverts, Silk slides a pill, Volume presses the active key down.",
     group: "Navigation",
     primitive: radix("Tabs", "tabs"),
     dependencies: ["radix-ui"],
@@ -606,7 +607,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     slug: "accordion",
     title: "Accordion",
-    description: "Stacked sections that expand in place. Drafting hairlines in Vector, heavy rules in Raw, separate raised blocks in Volume.",
+    description: "Stacked sections that expand in place. Heavy rules in Raw, soft floating cards in Silk, raised blocks in Volume.",
     group: "Navigation",
     primitive: radix("Accordion", "accordion"),
     dependencies: ["radix-ui", "@phosphor-icons/react"],
@@ -755,7 +756,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     slug: "spinner",
     title: "Spinner",
-    description: "Indeterminate loading indicator. Raw ticks in eight steps; Vector and Volume turn smoothly.",
+    description: "Indeterminate loading indicator. Raw ticks in eight steps; Silk and Volume turn smoothly.",
     group: "Feedback",
     dependencies: ["@phosphor-icons/react"],
     registryDependencies: [],
@@ -908,6 +909,134 @@ export const componentDocs: ComponentDoc[] = [
     },
   },
 
+
+  // ----------------------------------------------------------- Originals
+  {
+    slug: "number-ticker",
+    title: "Number Ticker",
+    description: "A number whose digits roll to each new value. Intl formatting for currency, percent and compact numbers.",
+    group: "Originals",
+    dependencies: [],
+    registryDependencies: [],
+    examples: [{ name: "number-ticker-demo", title: "Number Ticker" }],
+    usage: {
+      imports: `import { NumberTicker } from "@/components/ui/number-ticker"`,
+      code: `<NumberTicker value={48210} format={{ style: "currency", currency: "USD" }} />`,
+    },
+    props: [
+      {
+        component: "NumberTicker",
+        rows: [
+          { prop: "value", type: "number", description: "The number to show. Changes roll digit by digit.", extra: true },
+          { prop: "format", type: "Intl.NumberFormatOptions", description: "Currency, percent, compact notation, decimals.", extra: true },
+          { prop: "locales", type: "Intl.LocalesArgument", default: '"en-US"', description: "Locale for formatting.", extra: true },
+          { prop: "animateOnMount", type: "boolean", default: "true", description: "Roll up from zero on first render.", extra: true },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "stepper",
+    title: "Stepper",
+    description: "Progress through a multi-step flow, horizontal or vertical. Completed steps can be revisited.",
+    group: "Originals",
+    dependencies: ["@phosphor-icons/react"],
+    registryDependencies: [],
+    examples: [
+      { name: "stepper-demo", title: "Stepper" },
+      { name: "stepper-vertical", title: "Vertical", description: "A delivery timeline." },
+    ],
+    usage: {
+      imports: `import { Stepper } from "@/components/ui/stepper"`,
+      code: `<Stepper\n  current={1}\n  steps={[{ title: "Account" }, { title: "Workspace" }, { title: "Deploy" }]}\n/>`,
+    },
+    props: [
+      {
+        component: "Stepper",
+        rows: [
+          { prop: "steps", type: "{ title: ReactNode; description?: ReactNode }[]", description: "The steps, in order.", extra: true },
+          { prop: "current", type: "number", description: "Zero-based current step; earlier steps are complete.", extra: true },
+          { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction.", extra: true },
+          { prop: "onStepSelect", type: "(index: number) => void", description: "Makes completed steps clickable.", extra: true },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "gauge",
+    title: "Gauge",
+    description: "A radial meter with role=meter. Stroke weight, caps and tick marks come from the style.",
+    group: "Originals",
+    dependencies: [],
+    registryDependencies: [],
+    examples: [{ name: "gauge-demo", title: "Gauge" }],
+    usage: {
+      imports: `import { Gauge } from "@/components/ui/gauge"`,
+      code: `<Gauge value={64} label="CPU load" format={(v) => \`\${v}%\`} />`,
+    },
+    props: [
+      {
+        component: "Gauge",
+        rows: [
+          { prop: "value", type: "number", description: "Current value.", extra: true },
+          { prop: "min / max", type: "number", default: "0 / 100", description: "Range.", extra: true },
+          { prop: "label", type: "string", description: "Accessible name and caption.", extra: true },
+          { prop: "format", type: "(value: number) => string", description: "Formats the center number and aria-valuetext.", extra: true },
+          { prop: "tone", type: '"primary" | "success" | "warning" | "destructive"', default: '"primary"', description: "Color of the value arc.", extra: true },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "rating",
+    title: "Rating",
+    description: "Star rating on a radio group: arrow keys, hover preview, and a read-only display mode.",
+    group: "Originals",
+    dependencies: ["radix-ui", "@phosphor-icons/react"],
+    registryDependencies: [],
+    examples: [{ name: "rating-demo", title: "Rating" }],
+    usage: {
+      imports: `import { Rating } from "@/components/ui/rating"`,
+      code: `<Rating defaultValue={4} aria-label="Rate this article" />`,
+    },
+    props: [
+      {
+        component: "Rating",
+        rows: [
+          { prop: "value / defaultValue", type: "number", description: "Controlled or initial rating.", extra: true },
+          { prop: "onValueChange", type: "(value: number) => void", description: "Called when the rating changes.", extra: true },
+          { prop: "max", type: "number", default: "5", description: "Number of stars.", extra: true },
+          { prop: "readOnly", type: "boolean", default: "false", description: "Static display, announced as Rated x out of y.", extra: true },
+          { prop: "size", type: '"sm" | "default" | "lg"', default: '"default"', description: "Star size.", extra: true },
+        ],
+      },
+    ],
+    keyboard: [{ keys: "ArrowLeft / ArrowRight", action: "Changes the rating." }],
+  },
+  {
+    slug: "shader-background",
+    title: "Shader Background",
+    description: "A WebGL2 background painted with the active style's colors: halftone, blueprint, contour or aurora.",
+    group: "Originals",
+    dependencies: [],
+    registryDependencies: [],
+    examples: [{ name: "shader-background-demo", title: "Shader Background" }],
+    usage: {
+      imports: `import { ShaderBackground } from "@/components/ui/shader-background"`,
+      code: `<section className="relative isolate">\n  <ShaderBackground className="-z-10" />\n  ...\n</section>`,
+    },
+    props: [
+      {
+        component: "ShaderBackground",
+        rows: [
+          { prop: "preset", type: '"halftone" | "blueprint" | "contour" | "aurora"', description: "Pattern. Defaults to the one matching the nearest data-style.", extra: true },
+          { prop: "speed", type: "number", default: "1", description: "Animation speed. 0 renders a still frame.", extra: true },
+          { prop: "intensity", type: "number", default: "1", description: "Pattern strength, 0 to 1.", extra: true },
+        ],
+      },
+    ],
+  },
+
   // ----------------------------------------------------------- Utilities
   {
     slug: "style-scope",
@@ -935,6 +1064,7 @@ export const componentDocs: ComponentDoc[] = [
 ]
 
 export const componentGroups: ComponentGroup[] = [
+  "Originals",
   "Actions",
   "Forms",
   "Overlays",

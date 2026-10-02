@@ -3,6 +3,7 @@ import { ArrowRightIcon } from "@phosphor-icons/react/ssr"
 
 import { siteConfig } from "@/docs/site"
 import { Button } from "@/components/ui/button"
+import { ShaderBackground } from "@/components/ui/shader-background"
 import { CopyButton } from "@/components/site/copy-button"
 import { Prism } from "@/components/site/prism"
 import { SiteHeader } from "@/components/site/site-header"
@@ -13,15 +14,20 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-[96rem] flex-col gap-8 px-4 py-8 sm:px-6 lg:gap-10 lg:py-10">
+      <main className="relative isolate mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-[96rem] flex-col gap-8 px-4 py-8 sm:px-6 lg:gap-10 lg:py-10">
+        <ShaderBackground
+          intensity={0.5}
+          speed={0.7}
+          className="-z-10 [mask-image:radial-gradient(55%_48%_at_88%_0%,black_20%,transparent_100%)]"
+        />
         <div className="grid items-end gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16">
           <h1 className="site-display text-[2.5rem] leading-[0.98] text-balance sm:text-[3.5rem] lg:text-[4.25rem]">
-            Same components. Three materials.
+            Dumb components. Smart styles.
           </h1>
           <div className="grid gap-5 lg:pb-1.5">
             <p className="max-w-[46ch] text-base leading-relaxed text-pretty text-muted-foreground sm:text-[1.0625rem]">
-              Dumb UI is shadcn-compatible React. Raw, Vector and Volume are three
-              complete visual languages on one API. Drag the seams.
+              Components that don’t know what they look like. Styles that
+              decide everything. shadcn-compatible React. Drag the seams.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Button asChild size="lg">

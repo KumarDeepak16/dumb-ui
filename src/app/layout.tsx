@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next"
+import Script from "next/script"
 import {
   Archivo,
   Bricolage_Grotesque,
   Chakra_Petch,
+  Figtree,
   Geist,
   Geist_Mono,
   Martian_Mono,
@@ -49,6 +51,12 @@ const chakra = Chakra_Petch({
   display: "swap",
 })
 
+const figtree = Figtree({
+  subsets: ["latin"],
+  variable: "--font-figtree",
+  display: "swap",
+})
+
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-geist",
@@ -64,11 +72,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://ui.1619.in"),
   title: {
-    default: "Dumb UI: one component system, three visual languages",
+    default: "Dumb UI: dumb components, smart styles",
     template: "%s | Dumb UI",
   },
   description:
-    "Open-source React components on shadcn/ui conventions. The same API renders as Raw, Vector or Volume.",
+    "Open-source React components on shadcn/ui conventions. The same API renders as Raw, Silk or Volume.",
   openGraph: {
     title: "Dumb UI",
     description:
@@ -101,12 +109,15 @@ export default function RootLayout({
         onest.variable,
         bricolage.variable,
         chakra.variable,
+        figtree.variable,
         geist.variable,
         geistMono.variable
       )}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: preferenceScript }} />
+        <Script id="dumb-preferences" strategy="beforeInteractive">
+          {preferenceScript}
+        </Script>
       </head>
       <body>
         <SiteSettingsProvider>

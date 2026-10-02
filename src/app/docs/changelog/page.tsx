@@ -24,8 +24,8 @@ export default function ChangelogPage() {
         <Prose>
           <p>
             <strong>First release.</strong> {componentDocs.length} components
-            on Radix and shadcn/ui conventions, three styles (Raw, Vector,
-            Volume), the <code>@dumb</code> registry and this playground.
+            on Radix and shadcn/ui conventions, three core styles (Raw, Silk,
+            Volume) plus Vector as an extra, the <code>@dumb</code> registry and this playground.
           </p>
           <ul>
             <li>Style tokens and material layer with nestable scopes and reduced-motion fallbacks.</li>

@@ -2,10 +2,11 @@
 
 import * as React from "react"
 
-import { STYLE_META } from "@/lib/site-settings"
+import { STYLE_META, styleTrio } from "@/lib/site-settings"
+import { useSiteSettings } from "@/components/site/settings-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { DUMB_STYLES, StyleScope, type DumbStyle } from "@/components/ui/style-scope"
+import { StyleScope, type DumbStyle } from "@/components/ui/style-scope"
 
 const rows: { label: string; token: string; format?: (v: string) => string }[] = [
   { label: "Display face", token: "--du-font-display", format: firstFamily },
@@ -39,10 +40,12 @@ function rem(value: string) {
 function TokenCompare() {
   const refs = React.useRef<Partial<Record<DumbStyle, HTMLDivElement | null>>>({})
   const [values, setValues] = React.useState<Record<string, Record<string, string>>>({})
+  const { style: siteStyle } = useSiteSettings()
+  const trio = styleTrio(siteStyle)
 
   React.useEffect(() => {
     const next: Record<string, Record<string, string>> = {}
-    for (const style of DUMB_STYLES) {
+    for (const style of trio) {
       const el = refs.current[style]
       if (!el) continue
       const cs = getComputedStyle(el)
@@ -54,7 +57,7 @@ function TokenCompare() {
       )
     }
     setValues(next) // eslint-disable-line react-hooks/set-state-in-effect
-  }, [])
+  }, [trio.join()]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="overflow-x-auto rounded-(--du-radius-surface) border-(length:--du-border-surface) border-border bg-card shadow-(--du-shadow-surface)">
@@ -64,7 +67,7 @@ function TokenCompare() {
             <th className="w-44 p-4 text-left align-bottom">
               <span className="site-label text-muted-foreground">Token</span>
             </th>
-            {DUMB_STYLES.map((style) => (
+            {trio.map((style) => (
               <th key={style} className="p-0 align-top">
                 <StyleScope
                   name={style}
@@ -88,7 +91,7 @@ function TokenCompare() {
                 <span className="block font-medium">{row.label}</span>
                 <code className="font-mono text-[0.6875rem] text-muted-foreground">{row.token}</code>
               </th>
-              {DUMB_STYLES.map((style) => (
+              {trio.map((style) => (
                 <td key={style} className="border-l-(length:--du-rule) border-border p-3 align-top font-mono text-xs">
                   {values[style]?.[row.token] || "…"}
                 </td>

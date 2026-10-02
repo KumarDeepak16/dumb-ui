@@ -33,7 +33,7 @@ export default function PopoverDemo() {
       <PopoverContent className="w-80" align="start">
         <div className="grid gap-4">
           <div className="grid gap-1">
-            <h4 className="site-display text-[0.9375rem]">Share preview</h4>
+            <h4 className="du-display text-[0.9375rem]">Share preview</h4>
             <p className="text-[0.8125rem] text-muted-foreground">
               Anyone in 1619 Labs can open this link.
             </p>

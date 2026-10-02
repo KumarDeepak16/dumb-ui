@@ -52,7 +52,7 @@ const pairs: [string, string][] = [
   ["--warning-foreground", "--warning"],
 ]
 
-const cases = ["raw", "vector", "volume"].flatMap((style) =>
+const cases = ["raw", "silk", "volume", "vector", "halo"].flatMap((style) =>
   [false, true].map((dark) => ({ style, dark, label: `${style} ${dark ? "dark" : "light"}` }))
 )
 

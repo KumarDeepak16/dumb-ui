@@ -22,8 +22,9 @@ import { StyleSwitcher } from "@/components/site/style-switcher"
 import { ThemeToggle } from "@/components/site/theme-toggle"
 
 const links = [
-  { title: "Docs", href: "/docs", match: (p: string) => p.startsWith("/docs") && !p.startsWith("/docs/components") },
+  { title: "Docs", href: "/docs", match: (p: string) => p.startsWith("/docs") && !p.startsWith("/docs/components") && p !== "/docs/blocks" && p !== "/docs/styles" },
   { title: "Components", href: "/docs/components", match: (p: string) => p.startsWith("/docs/components") },
+  { title: "Blocks", href: "/docs/blocks", match: (p: string) => p === "/docs/blocks" },
   { title: "Styles", href: "/docs/styles", match: (p: string) => p === "/docs/styles" },
 ]
 

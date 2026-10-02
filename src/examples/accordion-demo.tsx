@@ -8,7 +8,7 @@ import {
 const faqs = [
   {
     q: "Do the three styles change the component API?",
-    a: "No. A style is a token set. The same props and markup render as Raw, Vector or Volume.",
+    a: "No. A style is a token set. The same props and markup render as Raw, Silk or Volume.",
   },
   {
     q: "Can I use Dumb UI next to my existing shadcn/ui components?",

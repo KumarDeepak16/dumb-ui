@@ -4,7 +4,7 @@ export default function SeparatorDemo() {
   return (
     <div className="w-full max-w-sm">
       <div className="grid gap-1">
-        <h4 className="site-display text-base">Dumb UI</h4>
+        <h4 className="du-display text-base">Dumb UI</h4>
         <p className="text-sm text-muted-foreground">
           One component system, three visual languages.
         </p>

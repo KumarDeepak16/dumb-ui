@@ -4,7 +4,7 @@ export const siteConfig = {
   name: "Dumb UI",
   url: "https://ui.1619.in",
   description:
-    "Open-source React components on shadcn/ui conventions. The same API renders as Raw, Vector or Volume.",
+    "Open-source React components on shadcn/ui conventions. The same API renders as Raw, Silk or Volume.",
   github: "https://github.com/KumarDeepak16/dumb-ui",
   author: { name: "Deepak Kumar", url: "https://1619.in", github: "KumarDeepak16" },
   registry: "https://ui.1619.in/r",
@@ -18,6 +18,7 @@ export const guideNav: NavItem[] = [
   { title: "Introduction", href: "/docs" },
   { title: "Installation", href: "/docs/installation" },
   { title: "Styles", href: "/docs/styles" },
+  { title: "Blocks", href: "/docs/blocks" },
   { title: "Tokens", href: "/docs/tokens" },
   { title: "Create a component", href: "/docs/create-a-component" },
   { title: "Publishing", href: "/docs/publishing" },

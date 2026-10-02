@@ -49,6 +49,64 @@
   --code-border: var(--foreground);
 }
 
+[data-style="halo"] {
+  --code-bg: oklch(0.965 0.003 255);
+  --code-fg: var(--foreground);
+  --code-border: var(--border);
+  --shiki-foreground: oklch(0.24 0.012 262);
+  --shiki-background: transparent;
+  --shiki-token-comment: oklch(0.56 0.012 262);
+  --shiki-token-keyword: oklch(0.5 0.12 170);
+  --shiki-token-string: oklch(0.52 0.12 60);
+  --shiki-token-string-expression: oklch(0.52 0.12 60);
+  --shiki-token-function: oklch(0.46 0.14 270);
+  --shiki-token-constant: oklch(0.52 0.15 25);
+  --shiki-token-parameter: oklch(0.3 0.012 262);
+  --shiki-token-punctuation: oklch(0.5 0.012 262);
+  --shiki-token-link: oklch(0.5 0.12 170);
+}
+[data-style="halo"]:is(.dark, .dark *) {
+  --code-bg: oklch(0.12 0.006 262);
+  --shiki-foreground: oklch(0.93 0.004 250);
+  --shiki-token-comment: oklch(0.6 0.012 255);
+  --shiki-token-keyword: oklch(0.82 0.14 168);
+  --shiki-token-string: oklch(0.82 0.11 75);
+  --shiki-token-string-expression: oklch(0.82 0.11 75);
+  --shiki-token-function: oklch(0.8 0.1 270);
+  --shiki-token-constant: oklch(0.78 0.12 25);
+  --shiki-token-parameter: oklch(0.9 0.004 250);
+  --shiki-token-punctuation: oklch(0.68 0.01 255);
+}
+
+[data-style="silk"] {
+  --code-bg: oklch(0.955 0.007 60);
+  --code-fg: var(--foreground);
+  --code-border: transparent;
+  --shiki-foreground: oklch(0.26 0.012 50);
+  --shiki-background: transparent;
+  --shiki-token-comment: oklch(0.58 0.015 50);
+  --shiki-token-keyword: oklch(0.52 0.19 12);
+  --shiki-token-string: oklch(0.5 0.12 150);
+  --shiki-token-string-expression: oklch(0.5 0.12 150);
+  --shiki-token-function: oklch(0.48 0.14 270);
+  --shiki-token-constant: oklch(0.55 0.14 50);
+  --shiki-token-parameter: oklch(0.3 0.012 50);
+  --shiki-token-punctuation: oklch(0.5 0.012 50);
+  --shiki-token-link: oklch(0.52 0.19 12);
+}
+[data-style="silk"]:is(.dark, .dark *) {
+  --code-bg: oklch(0.21 0.009 40);
+  --shiki-foreground: oklch(0.93 0.006 75);
+  --shiki-token-comment: oklch(0.62 0.012 60);
+  --shiki-token-keyword: oklch(0.76 0.15 12);
+  --shiki-token-string: oklch(0.8 0.12 150);
+  --shiki-token-string-expression: oklch(0.8 0.12 150);
+  --shiki-token-function: oklch(0.8 0.1 270);
+  --shiki-token-constant: oklch(0.8 0.12 60);
+  --shiki-token-parameter: oklch(0.9 0.006 75);
+  --shiki-token-punctuation: oklch(0.7 0.01 60);
+}
+
 [data-style="vector"] {
   --code-bg: oklch(0.965 0.008 255);
   --code-fg: var(--foreground);
@@ -210,6 +268,16 @@
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+.site-style-option[data-option="silk"] {
+  font-family: var(--font-figtree), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.site-style-option[data-option="halo"] {
+  font-family: var(--font-geist), system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
 }
 .site-style-option[data-option="vector"] {
   font-family: var(--font-chakra), system-ui, sans-serif;

@@ -11,7 +11,7 @@ import {
 } from "@phosphor-icons/react/ssr"
 
 import { cn } from "@/lib/utils"
-import { STYLE_META } from "@/lib/site-settings"
+import { STYLE_META, styleTrio } from "@/lib/site-settings"
 import { examples } from "@/examples/__index"
 import { defaultValues, playgrounds, type Control, type Values } from "@/docs/playgrounds"
 import { Button } from "@/components/ui/button"
@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-import { DUMB_STYLES, StyleScope } from "@/components/ui/style-scope"
+import { StyleScope } from "@/components/ui/style-scope"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -84,11 +84,11 @@ function ComponentPreview({
         <ViewportFrame name={name} width={viewportWidth[viewport]} style={style} theme={resolvedTheme} />
       ) : compare ? (
         <div className="grid w-full self-stretch md:grid-cols-3">
-          {DUMB_STYLES.map((value) => (
+          {styleTrio(style).map((value) => (
             <StyleScope
               key={value}
               name={value}
-              className="site-canvas relative flex min-h-64 items-center justify-center border-border p-6 pt-12 not-last:border-b-(length:--du-rule) md:not-last:border-r-(length:--du-rule) md:not-last:border-b-0"
+              className="site-canvas relative flex min-h-64 items-center justify-center border-border p-6 pt-12 shadow-[inset_0_0_0_0.5px_var(--border)]"
             >
               <span className="site-label absolute top-4 left-4 text-muted-foreground">
                 {STYLE_META[value].label}
@@ -122,7 +122,7 @@ function ComponentPreview({
               <TooltipTrigger asChild>
                 <Toggle
                   size="sm"
-                  aria-label="Compare all three styles"
+                  aria-label="Compare all styles"
                   pressed={compare}
                   onPressedChange={(on) => {
                     setCompare(on)
@@ -133,7 +133,7 @@ function ComponentPreview({
                   <span className="hidden sm:inline">Compare</span>
                 </Toggle>
               </TooltipTrigger>
-              <TooltipContent>Render in all three styles</TooltipContent>
+              <TooltipContent>Render in every style</TooltipContent>
             </Tooltip>
             <ToggleGroup
               type="single"

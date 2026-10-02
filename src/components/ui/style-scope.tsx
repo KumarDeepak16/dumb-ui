@@ -4,7 +4,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const DUMB_STYLES = ["raw", "vector", "volume"] as const
+const DUMB_STYLES = ["raw", "silk", "volume", "vector", "halo"] as const
 
 type DumbStyle = (typeof DUMB_STYLES)[number]
 

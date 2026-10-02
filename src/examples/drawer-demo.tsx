@@ -40,10 +40,10 @@ export default function DrawerDemo() {
               <MinusIcon weight="bold" />
             </Button>
             <div className="w-32 text-center">
-              <div className="site-display text-6xl tabular-nums" aria-live="polite">
+              <div className="du-display text-6xl tabular-nums" aria-live="polite">
                 {goal}
               </div>
-              <div className="site-label mt-1 text-muted-foreground">kcal/day</div>
+              <div className="du-label mt-1 text-muted-foreground">kcal/day</div>
             </div>
             <Button
               variant="outline"
