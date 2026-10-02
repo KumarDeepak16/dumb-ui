@@ -1016,11 +1016,14 @@ export const componentDocs: ComponentDoc[] = [
   {
     slug: "shader-background",
     title: "Shader Background",
-    description: "A WebGL2 background painted with the active style's colors: halftone, blueprint, contour or aurora.",
+    description: "A WebGL2 background painted with the active style's colors. Five presets: Newsprint, Velvet, Altitude, Cyanotype and Lumen.",
     group: "Originals",
     dependencies: [],
     registryDependencies: [],
-    examples: [{ name: "shader-background-demo", title: "Shader Background" }],
+    examples: [
+      { name: "shader-background-demo", title: "Shader Background" },
+      { name: "shader-background-gallery", title: "All presets", description: "Every preset side by side, each in the current style's colors." },
+    ],
     usage: {
       imports: `import { ShaderBackground } from "@/components/ui/shader-background"`,
       code: `<section className="relative isolate">\n  <ShaderBackground className="-z-10" />\n  ...\n</section>`,
@@ -1029,7 +1032,7 @@ export const componentDocs: ComponentDoc[] = [
       {
         component: "ShaderBackground",
         rows: [
-          { prop: "preset", type: '"halftone" | "blueprint" | "contour" | "aurora"', description: "Pattern. Defaults to the one matching the nearest data-style.", extra: true },
+          { prop: "preset", type: '"newsprint" | "velvet" | "altitude" | "cyanotype" | "lumen"', description: "Pattern. Defaults to the one matching the nearest data-style.", extra: true },
           { prop: "speed", type: "number", default: "1", description: "Animation speed. 0 renders a still frame.", extra: true },
           { prop: "intensity", type: "number", default: "1", description: "Pattern strength, 0 to 1.", extra: true },
         ],

@@ -4,14 +4,25 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const PRESETS = ["halftone", "blueprint", "contour", "aurora"] as const
+const PRESETS = ["newsprint", "cyanotype", "altitude", "lumen", "velvet"] as const
 type ShaderPreset = (typeof PRESETS)[number]
 
 /** Each style's natural background. */
 const STYLE_PRESET: Record<string, ShaderPreset> = {
-  raw: "halftone",
-  vector: "blueprint",
-  volume: "contour",
+  raw: "newsprint",
+  silk: "velvet",
+  volume: "altitude",
+  vector: "cyanotype",
+  halo: "lumen",
+}
+
+/** Display names and one-line descriptions, for pickers and docs. */
+const SHADER_PRESETS: Record<ShaderPreset, { name: string; description: string }> = {
+  newsprint: { name: "Newsprint", description: "Ink halftone that breathes like a press run." },
+  velvet: { name: "Velvet", description: "Slow pools of soft light with a film grain." },
+  altitude: { name: "Altitude", description: "Topographic lines over shifting terrain." },
+  cyanotype: { name: "Cyanotype", description: "A drafting grid with geometry that draws itself." },
+  lumen: { name: "Lumen", description: "Light curtains drifting across the top of the frame." },
 }
 
 const VERTEX = `#version 300 es
@@ -27,6 +38,7 @@ uniform int u_preset;
 uniform vec3 u_bg;
 uniform vec3 u_fg;
 uniform vec3 u_accent;
+uniform vec3 u_primary;
 uniform vec2 u_mouse;
 uniform float u_intensity;
 out vec4 outColor;
@@ -59,13 +71,13 @@ void main() {
 
   if (u_preset == 0) {
     // halftone: a print dot field whose dot size follows drifting noise
-    float cell = 11.0 * u_dpr;
+    float cell = 13.0 * u_dpr;
     vec2 id = floor(px / cell);
     vec2 f = fract(px / cell) - 0.5;
     float n = fbm(id * 0.045 + vec2(t * 0.04, -t * 0.025));
-    float r = smoothstep(0.38, 0.82, n) * 0.48;
+    float r = smoothstep(0.42, 0.86, n) * 0.42;
     ink = 1.0 - smoothstep(r - 0.06, r, length(f));
-    col = mix(u_bg, u_fg, ink * 0.85 * u_intensity);
+    col = mix(u_bg, u_fg, ink * 0.62 * u_intensity);
   } else if (u_preset == 1) {
     // blueprint: drafting grid + construction geometry that draws itself
     float minor = grid(px, 16.0 * u_dpr);
@@ -102,12 +114,29 @@ void main() {
     float majorLine = step(0.5, fract(k / 5.0 + 0.1)) < 0.5 ? 1.0 : 0.0;
     col = mix(u_bg, u_fg, l * 0.22 * u_intensity);
     col = mix(col, u_accent, l * majorLine * 0.45 * u_intensity);
+  } else if (u_preset == 3) {
+    // lumen: light curtains hanging from the top edge
+    float drift = fbm(vec2(p.x * 1.3 + t * 0.035, t * 0.02));
+    float center = 0.72 + (drift - 0.5) * 0.45;
+    float curtain = clamp(1.0 - abs(uv.y - center) * 2.6, 0.0, 1.0);
+    curtain *= curtain;
+    float rays = fbm(vec2(p.x * 9.0 + t * 0.05, t * 0.08));
+    float glow = curtain * (0.45 + 0.55 * rays) * (1.0 - smoothstep(0.55, 1.0, 1.0 - uv.y));
+    col = mix(u_bg, u_accent, glow * 0.6 * u_intensity);
+    col = mix(col, u_fg, pow(glow, 3.0) * 0.12 * u_intensity);
   } else {
-    // aurora: soft bands in the accent color
-    float n = fbm(vec2(p.x * 1.1 + t * 0.05, p.y * 2.4 - t * 0.03));
-    float band = smoothstep(0.35, 0.95, n) * smoothstep(1.1, 0.1, uv.y);
-    col = mix(u_bg, u_accent, band * 0.55 * u_intensity);
-    col = mix(col, u_fg, smoothstep(0.75, 1.0, n) * 0.08 * u_intensity);
+    // velvet: slow pools of soft light
+    float s = t * 0.06;
+    vec2 c1 = vec2(sin(s * 1.3) * 0.55 + 0.25, cos(s * 0.9) * 0.28 + 0.1);
+    vec2 c2 = vec2(cos(s * 0.8) * 0.6 - 0.3, sin(s * 1.1) * 0.32 - 0.12);
+    vec2 c3 = vec2(sin(s * 0.7 + 2.0) * 0.4, cos(s * 1.2 + 1.0) * 0.35);
+    float b1 = exp(-dot(p - c1, p - c1) * 2.6);
+    float b2 = exp(-dot(p - c2, p - c2) * 2.2);
+    float b3 = exp(-dot(p - c3, p - c3) * 4.0);
+    col = mix(u_bg, u_accent, b1 * 0.42 * u_intensity);
+    col = mix(col, u_primary, b2 * 0.14 * u_intensity);
+    col = mix(col, mix(u_accent, u_bg, 0.5), b3 * 0.3 * u_intensity);
+    col += (hash(px * 0.73 + t) - 0.5) * 0.03 * u_intensity;
   }
 
   // whisper of grain keeps gradients from banding
@@ -126,7 +155,7 @@ function cssToRgb(color: string, ctx: CanvasRenderingContext2D): [number, number
 }
 
 type ShaderBackgroundProps = React.ComponentProps<"div"> & {
-  /** Defaults to the preset that matches the nearest data-style. */
+  /** Defaults to the preset that matches the nearest data-style (Raw: newsprint, Silk: velvet, Volume: altitude, Vector: cyanotype, Halo: lumen). */
   preset?: ShaderPreset
   /** Animation speed multiplier. 0 renders a still frame. */
   speed?: number
@@ -166,7 +195,12 @@ function ShaderBackground({
     gl.attachShader(program, compile(gl.VERTEX_SHADER, VERTEX))
     gl.attachShader(program, compile(gl.FRAGMENT_SHADER, FRAGMENT))
     gl.linkProgram(program)
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      if (process.env.NODE_ENV !== "production") {
+        console.error("ShaderBackground:", gl.getProgramInfoLog(program))
+      }
+      return
+    }
     gl.useProgram(program)
 
     const buffer = gl.createBuffer()
@@ -179,18 +213,19 @@ function ShaderBackground({
     const u = (name: string) => gl.getUniformLocation(program, name)
     const uniforms = {
       res: u("u_res"), time: u("u_time"), dpr: u("u_dpr"), preset: u("u_preset"),
-      bg: u("u_bg"), fg: u("u_fg"), accent: u("u_accent"), mouse: u("u_mouse"), intensity: u("u_intensity"),
+      bg: u("u_bg"), fg: u("u_fg"), accent: u("u_accent"), primary: u("u_primary"), mouse: u("u_mouse"), intensity: u("u_intensity"),
     }
 
     const probe = document.createElement("canvas").getContext("2d", { willReadFrequently: true })!
     const readColors = () => {
       const cs = getComputedStyle(root)
       const scope = root.closest("[data-style]")?.getAttribute("data-style") ?? "raw"
-      const resolved = preset ?? STYLE_PRESET[scope] ?? "aurora"
+      const resolved = preset ?? STYLE_PRESET[scope] ?? "velvet"
       gl.uniform1i(uniforms.preset, PRESETS.indexOf(resolved))
       gl.uniform3fv(uniforms.bg, cssToRgb(cs.getPropertyValue("--background").trim(), probe))
       gl.uniform3fv(uniforms.fg, cssToRgb(cs.getPropertyValue("--foreground").trim(), probe))
       gl.uniform3fv(uniforms.accent, cssToRgb(cs.getPropertyValue("--highlight").trim(), probe))
+      gl.uniform3fv(uniforms.primary, cssToRgb(cs.getPropertyValue("--primary").trim(), probe))
     }
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
@@ -291,4 +326,4 @@ function ShaderBackground({
   )
 }
 
-export { ShaderBackground, type ShaderPreset }
+export { ShaderBackground, SHADER_PRESETS, STYLE_PRESET, type ShaderPreset }
