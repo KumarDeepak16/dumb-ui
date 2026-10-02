@@ -8,6 +8,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteConfig.url, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${siteConfig.url}/docs/components`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteConfig.url}/templates/landing`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${siteConfig.url}/templates/portfolio`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     ...guideNav.map((item) => ({
       url: `${siteConfig.url}${item.href}`,
       lastModified: now,

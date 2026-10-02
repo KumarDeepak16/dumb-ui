@@ -19,6 +19,7 @@ export const guideNav: NavItem[] = [
   { title: "Installation", href: "/docs/installation" },
   { title: "Styles", href: "/docs/styles" },
   { title: "Blocks", href: "/docs/blocks" },
+  { title: "Templates", href: "/docs/templates" },
   { title: "Tokens", href: "/docs/tokens" },
   { title: "Create a component", href: "/docs/create-a-component" },
   { title: "Publishing", href: "/docs/publishing" },

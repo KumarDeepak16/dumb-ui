@@ -6,6 +6,7 @@ import { flushSync } from "react-dom"
 import type { DumbStyle } from "@/components/ui/style-scope"
 import {
   DEFAULT_STYLE,
+  STYLE_IDS,
   STYLE_STORAGE_KEY,
   THEME_STORAGE_KEY,
   type ThemePreference,
@@ -24,8 +25,8 @@ const SiteSettingsContext = React.createContext<SiteSettings | null>(null)
 function readStyle(): DumbStyle {
   if (typeof document === "undefined") return DEFAULT_STYLE
   const value = document.documentElement.getAttribute("data-style")
-  return value === "vector" || value === "volume" || value === "raw"
-    ? value
+  return (STYLE_IDS as readonly string[]).includes(value ?? "")
+    ? (value as DumbStyle)
     : DEFAULT_STYLE
 }
 
@@ -113,9 +114,16 @@ function SiteSettingsProvider({ children }: { children: React.ReactNode }) {
         setResolvedTheme(applyTheme(next))
       }
     }
+    // Pages (like the portfolio template) may set data-style directly.
+    const observer = new MutationObserver(() => setStyleState(readStyle()))
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-style"],
+    })
     media.addEventListener("change", onMedia)
     window.addEventListener("storage", onStorage)
     return () => {
+      observer.disconnect()
       media.removeEventListener("change", onMedia)
       window.removeEventListener("storage", onStorage)
     }

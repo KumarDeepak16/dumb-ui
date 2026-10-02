@@ -93,6 +93,28 @@ const registry = {
         },
       ],
     })),
+    ...(["landing", "portfolio"] as const).map((name) => ({
+      name: `template-${name}`,
+      type: "registry:page",
+      title: name === "landing" ? "Landing page template" : "Portfolio template",
+      description: "A full page built from Dumb UI components. Needs <Toaster /> in your root layout.",
+      registryDependencies: [
+        item("dumb-ui"),
+        ...readFileSync(path.join(root, `src/templates/${name}.tsx`), "utf8")
+          .match(/@\/components\/ui\/([\w-]+)/g)!
+          .map((m) => m.replace("@/components/ui/", ""))
+          .filter((v, i, a) => a.indexOf(v) === i)
+          .map(item),
+      ],
+      dependencies: ["sonner", "@phosphor-icons/react"],
+      files: [
+        {
+          path: `src/templates/${name}.tsx`,
+          type: "registry:page",
+          target: `app/${name}/page.tsx`,
+        },
+      ],
+    })),
     {
       name: "all",
       type: "registry:item",
